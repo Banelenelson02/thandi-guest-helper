@@ -1,0 +1,4 @@
+project_id = "mlibkcdberelowauxxox"
+
+[functions.thandi-chat]
+verify_jwt = false
