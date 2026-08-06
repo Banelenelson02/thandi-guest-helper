@@ -1,0 +1,63 @@
+GOOGLE MAPS — REACT PROJECT PATCH
+====================================
+For: thandi-guest-helper (your Lovable/GitHub project)
+
+WHAT THIS ADDS
+--------------
+A live, interactive Google Map on your Contact page, styled to match
+your grey & gold theme, with a gold pin marker and a "Get Directions"
+button.
+
+
+HOW TO INSTALL (3 steps)
+--------------------------
+
+STEP 1 — Copy the files into your project
+  Copy these into your project, keeping the same folder paths:
+
+  src/components/GoogleMap.tsx   → new file
+  src/routes/contact.tsx         → REPLACES your existing contact.tsx
+
+  (If you've customised contact.tsx since I last saw it, copy just
+   the <GoogleMap /> usage and the import line instead of overwriting
+   the whole file.)
+
+
+STEP 2 — Add your API key to .env
+  Open the .env file in your project root and add this line:
+
+  VITE_GOOGLE_MAPS_API_KEY="your_key_here"
+
+  Get the key from:
+  1. console.cloud.google.com → create/select a project
+  2. Enable "Maps JavaScript API" AND "Geocoding API"
+  3. Credentials → Create Credentials → API Key
+  4. Restrict it to your domain (Application restrictions →
+     HTTP referrers) once you know your live domain
+
+
+STEP 3 — Run the project
+  bun install   (or npm install, if you're not using bun)
+  bun dev       (or npm run dev)
+
+  Visit /contact — the map should load automatically.
+
+
+HOW IT WORKS
+------------
+- Loads the Google Maps script dynamically via React (no need to
+  touch your root HTML head)
+- Geocodes your real address (4763 Hlalanikahle, eMalahleni) for
+  pinpoint accuracy — no manual coordinate guessing
+- Custom dark grey + gold map theme matches your brand
+- Gold pin marker with an info window (name, address, rating,
+  directions link) that opens automatically
+- Gracefully falls back to a placeholder message if the API key
+  is missing or the map fails to load — the page never breaks
+
+
+COST
+----
+Free in practice. Google gives $200 USD free credit every month
+(~28,000 map loads). A single guesthouse site won't get close to
+that. You just need a card on file with Google Cloud as a formality.

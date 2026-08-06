@@ -120,22 +120,21 @@ function BookingPage() {
           <Field label="Email Address" name="email" type="email" error={errors.email} required />
           <Field label="Phone / WhatsApp" name="phone" type="tel" placeholder="0xx xxx xxxx" error={errors.phone} required />
 
-          <SelectField label="Booking Type" name="bookingType" error={errors.bookingType} defaultValue={search.type === "spa" ? "spa" : ""}>
+          <SelectField label="Booking Type" name="bookingType" error={errors.bookingType} defaultValue="">
             <option value="">Select…</option>
-            <option value="day">Day Time Booking</option>
-            <option value="night">Night Time Booking</option>
-            <option value="full">Full Day Booking</option>
-            <option value="spa">Spa Treatment Only</option>
+            <option value="day">Day Booking — R350 (10am–4pm)</option>
+            <option value="night">Night Booking — R450 (5pm–9am)</option>
+            <option value="short">Short Stay — R200 (3 hours, 9am–5pm)</option>
+            <option value="full">Full Day & Night — R625 (24 hours)</option>
           </SelectField>
 
-          <SelectField label="Room Type" name="room" error={errors.room} defaultValue={search.room ?? ""}>
+          <SelectField label="Room" name="room" error={errors.room} defaultValue={search.room ?? ""}>
             <option value="">Select…</option>
             {ROOMS.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.name} — R{r.price.toLocaleString()}/night
+                {r.name} — {r.ensuite ? "En-suite" : "Shared toilet"}
               </option>
             ))}
-            <option value="spa-only">Spa Treatment (No Room)</option>
           </SelectField>
 
           <SelectField label="Number of Guests" name="guests" defaultValue="1">

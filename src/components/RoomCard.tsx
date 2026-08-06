@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { Room } from "@/data/rooms";
+import { AMENITIES } from "@/data/rooms";
 
 export function RoomCard({ room }: { room: Room }) {
   return (
@@ -17,22 +18,15 @@ export function RoomCard({ room }: { room: Room }) {
       <div className="p-6 flex-1 flex flex-col">
         <h3 className="font-display text-2xl mb-2">{room.name}</h3>
         <p className="text-[0.73rem] text-muted-foreground leading-[1.85] mb-3 flex-1">{room.description}</p>
-        <ul className="list-none mb-4">
-          {room.highlights.map((h) => (
-            <li
-              key={h}
-              className="text-[0.68rem] text-muted-foreground py-1 border-b border-white/5 flex items-center gap-2"
-            >
-              <span className="text-gold text-[0.5rem] flex-shrink-0">✦</span>
-              {h}
-            </li>
-          ))}
-        </ul>
-        <div className="font-display text-2xl text-gold mb-3">
-          R{room.price.toLocaleString()} <span className="text-[0.62rem] text-muted-foreground font-sans">/ night</span>
-        </div>
+
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {room.amenities.map((a) => (
+          <span className="text-[0.58rem] tracking-[0.15em] uppercase px-2 py-1 border border-[oklch(0.76_0.13_85/0.3)] text-gold">
+            {room.ensuite ? "En-suite" : "Shared Toilet"}
+          </span>
+          <span className="text-[0.58rem] tracking-[0.15em] uppercase px-2 py-1 border border-[oklch(0.76_0.13_85/0.3)] text-gold">
+            Max 2 Guests
+          </span>
+          {AMENITIES.slice(0, 2).map((a) => (
             <span
               key={a}
               className="text-[0.58rem] tracking-[0.15em] uppercase px-2 py-1 border border-[oklch(0.76_0.13_85/0.3)] text-gold"
@@ -41,6 +35,7 @@ export function RoomCard({ room }: { room: Room }) {
             </span>
           ))}
         </div>
+
         <Link
           to="/booking"
           search={{ room: room.id }}

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { GoogleMap } from "@/components/GoogleMap";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -7,7 +8,7 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Get in touch with Cosy Corner Guest House & Spa. Address: 4763 Hlalanikahle, eMalahleni, Mpumalanga. Call or WhatsApp 064 123 6760.",
+          "Get in touch with Cosy Corner Guest House & Spa. Address: 4763 Phase 4, Hlalanikahle, eMalahleni, 1045. Call or WhatsApp 064 123 6760.",
       },
       { property: "og:title", content: "Contact Cosy Corner Guest House" },
       { property: "og:description", content: "Find us in Hlalanikahle, eMalahleni. Call or WhatsApp 064 123 6760." },
@@ -26,22 +27,20 @@ function ContactPage() {
             Get in <em>Touch</em>
           </h1>
           <p className="text-[0.8rem] text-muted-foreground leading-[2] mb-8">
-            We'd love to hear from you. Whether you have a question about our rooms, spa services, or want to make
+            We'd love to hear from you. Whether you have a question about our rooms, pool access, or want to make
             a special arrangement, our team is here to help.
           </p>
 
           <div className="flex flex-col gap-5">
-            <ContactItem icon="📍" title="Address" body="4763, Hlalanikahle, eMalahleni, 1045, Mpumalanga, South Africa" />
+            <ContactItem icon="📍" title="Address" body="4763 Phase 4, Hlalanikahle, eMalahleni, 1045" />
             <ContactItem icon="📞" title="Phone & WhatsApp" body="064 123 6760" />
-            <ContactItem icon="🕐" title="Booking Options" body="Day Time · Night Time · Full Day Bookings" />
-            <ContactItem icon="📺" title="In Every Room" body="High-Speed WiFi · Smart TV · DStv" />
+            <ContactItem icon="🕐" title="Booking Options" body="Day · Night · Short Stay · Full Day & Night" />
+            <ContactItem icon="📺" title="In Every Room" body="Smart TV · Free WiFi · Bar Fridge · Air Conditioner" />
           </div>
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="h-72 bg-bg3 border border-border flex items-center justify-center font-display text-muted-foreground italic">
-            📍 Hlalanikahle, eMalahleni
-          </div>
+          <GoogleMap />
           <div className="flex gap-3">
             <Link to="/booking" className="btn-primary flex-1 text-center">Book Now</Link>
             <a
