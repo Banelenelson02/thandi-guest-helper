@@ -7,16 +7,26 @@ const corsHeaders = {
 
 const FACT_SHEET = `GUESTHOUSE FACT SHEET:
 - Name: Cosy Corner Guest House & Spa
-- Address: 4763, Hlalanikahle, eMalahleni, 1045, Mpumalanga
+- Address: 4763 Phase 4, Hlalanikahle, eMalahleni, 1045, Mpumalanga
 - Phone & WhatsApp: 064 123 6760
-- Check-in: 14:00 | Check-out: 11:00
-- WiFi: Available in all rooms (password provided at check-in)
-- Booking types: Day Time, Night Time, Full Day
-- Rooms:
-  • Deluxe Room — R850/night, queen bed, en-suite, AC, Smart TV, DStv, WiFi
-  • Executive Suite — R1,350/night, king bed, sitting area, complimentary spa treatment, minibar, Smart TV, WiFi
-  • Garden Room — R750/night, double bed, private patio, garden views, Smart TV, WiFi
-- Spa: Full Body Massage (60 or 90 min), Facials, Manicure & Pedicure, Aromatherapy
+- Check-in: 10:00 AM | Check-out: 9:00 AM
+- WiFi: Free WiFi in all rooms
+- Booking types & prices:
+  • Day Booking — R350 (10:00 AM – 4:00 PM)
+  • Night Booking — R450 (5:00 PM – 9:00 AM)
+  • Short Stay — R200 (3 hours, 9:00 AM – 5:00 PM)
+  • Full Day & Night — R625 (24 hours)
+- Rooms: 5 double bedrooms, max 2 guests per room
+  • Room 1 — en-suite (own toilet & shower), TV, bar fridge, small lounge area
+  • Room 2 — en-suite (own toilet & shower), TV, bar fridge
+  • Room 3 — shares a toilet with Room 5, TV, bar fridge
+  • Room 4 — en-suite (own toilet & shower), TV, bar fridge
+  • Room 5 — shares a toilet with Room 3, TV, bar fridge
+- Every room includes: Smart TV, Free WiFi, Bar Fridge, Air Conditioner, Secure Parking
+- Swimming pool on the grounds — included with Day/Night/Full Day & Night bookings; outdoor-only visitors can add pool access: Adults R75, Children R50, Cooler Box Fee R50 (pool not included with Short Stay bookings)
+- Two traditional thatched rondavels on the grounds, hand-painted with Ndebele patterns — a spot to relax outdoors, ask the team about using this space
+- House rules: no smoking inside rooms, no loud music/noise after 10:00 PM, visitors only by prior arrangement, bookings only confirmed after payment is received
+- No spa treatments (massages, facials etc.) are currently offered — if asked, say these aren't available yet and suggest the pool and rondavels instead
 - Google Rating: 4.9 stars (26 reviews)`;
 
 function getGreeting(hour: number) {
