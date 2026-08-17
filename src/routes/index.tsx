@@ -1,21 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero-exterior.jpg";
+import heroImg from "@/assets/rooms/outside/outside-2.jpg";
 import { ROOMS } from "@/data/rooms";
 import { RoomCard } from "@/components/RoomCard";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cosy Corner Guest House & Spa | Luxury Stay in eMalahleni" },
+      { title: "Cosy Corner Guest House & Spa | eMalahleni" },
       {
         name: "description",
         content:
-          "Where comfort meets luxury. Modern rooms, signature spa treatments and warm hospitality in Hlalanikahle, eMalahleni — rated 4.9★ on Google.",
+          "Comfortable double rooms, a swimming pool and traditional rondavels in Hlalanikahle, eMalahleni. Day, night, short stay and full day & night bookings from R200.",
       },
       { property: "og:title", content: "Cosy Corner Guest House & Spa | eMalahleni" },
       {
         property: "og:description",
-        content: "Luxury rooms and spa treatments in eMalahleni. Day, night and full day bookings available.",
+        content: "Comfortable rooms, pool access and rondavels in eMalahleni. Bookings from R200.",
       },
       { property: "og:image", content: heroImg },
       { name: "twitter:image", content: heroImg },
@@ -32,7 +32,7 @@ function HomePage() {
         <div className="absolute inset-0">
           <img
             src={heroImg}
-            alt="Cosy Corner Guest House interior"
+            alt="Cosy Corner Guest House grounds and rondavels"
             width={1920}
             height={1280}
             className="w-full h-full object-cover"
@@ -55,7 +55,7 @@ function HomePage() {
             <em className="italic text-gold">Guest House &amp; Spa</em>
           </h1>
           <p className="text-[0.72rem] tracking-[0.3em] uppercase text-muted-foreground mt-5">
-            Where Comfort Meets Luxury
+            Comfortable Stays in eMalahleni
           </p>
           <div className="w-[60px] h-px bg-gold mx-auto my-8" />
           <div className="flex flex-wrap gap-4 justify-center">
@@ -75,12 +75,12 @@ function HomePage() {
         <div className="max-w-5xl mx-auto text-center">
           <p className="section-tag">Our Story</p>
           <h2 className="section-title mb-8">
-            A Sanctuary in the <em>Heart of Mpumalanga</em>
+            A Comfortable Stay in <em>Hlalanikahle</em>
           </h2>
           <p className="text-muted-foreground leading-[2] text-[0.85rem] max-w-2xl mx-auto mb-10">
-            Nestled in the vibrant community of Hlalanikahle, Cosy Corner offers a rare blend of modern luxury
-            and warm South African hospitality. Sleek contemporary design, refined comfort, and thoughtful detail
-            in every room.
+            Cosy Corner is a family-run guest house in Hlalanikahle, eMalahleni, offering five comfortable
+            double rooms, a swimming pool and two hand-painted rondavels on the grounds. Simple, clean and
+            well looked after — with day, night, short stay and full day & night bookings to suit your plans.
           </p>
           <Link to="/about" className="btn-outline">Discover More</Link>
         </div>
@@ -92,10 +92,10 @@ function HomePage() {
           <div className="text-center mb-14">
             <p className="section-tag">Accommodation</p>
             <h2 className="section-title">
-              Thoughtfully <em>Designed Rooms</em>
+              Our <em>5 Rooms</em>
             </h2>
             <p className="text-[0.72rem] tracking-[0.3em] uppercase text-muted-foreground mt-4">
-              Day · Night · Full Day Bookings
+              Day · Night · Short Stay · Full Day & Night — From R200
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-1">
@@ -109,12 +109,14 @@ function HomePage() {
       {/* CTA */}
       <section className="py-24 px-6 text-center">
         <h2 className="section-title mb-6">
-          Ready to <em>Unwind?</em>
+          Ready to <em>Book?</em>
         </h2>
-        <p className="text-muted-foreground mb-8 text-[0.85rem]">Reserve your stay or book a spa treatment today.</p>
+        <p className="text-muted-foreground mb-8 text-[0.85rem]">
+          Reserve a room, or ask about pool-only access for the day.
+        </p>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link to="/booking" className="btn-primary">Book Now</Link>
-          <Link to="/spa" className="btn-outline">Explore the Spa</Link>
+          <Link to="/spa" className="btn-outline">Pool & Grounds</Link>
         </div>
       </section>
     </>

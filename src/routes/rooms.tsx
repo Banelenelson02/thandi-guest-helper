@@ -1,7 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ROOMS, BOOKING_TYPES, POOL_FEES, AMENITIES, HOUSE_RULES } from "@/data/rooms";
+import {
+  ROOMS,
+  BOOKING_TYPES,
+  POOL_FEES,
+  AMENITIES,
+  HOUSE_RULES,
+  POOL_IMAGES,
+  RONDAVEL_IMAGES,
+} from "@/data/rooms";
 import { RoomCard } from "@/components/RoomCard";
-import roomDeluxe from "@/assets/room-deluxe.jpg";
+import room1Img from "@/assets/rooms/room-1/room-1-1.jpg";
 
 export const Route = createFileRoute("/rooms")({
   head: () => ({
@@ -10,10 +18,10 @@ export const Route = createFileRoute("/rooms")({
       {
         name: "description",
         content:
-          "5 double bedrooms from R200. Day, night, short stay and full day & night bookings available at Cosy Corner Guest House & Spa.",
+          "5 double rooms from R200. Day, night, short stay and full day & night bookings, plus a swimming pool and thatched rondavels on the grounds.",
       },
       { property: "og:title", content: "Rooms & Pricing | Cosy Corner Guest House" },
-      { property: "og:image", content: roomDeluxe },
+      { property: "og:image", content: room1Img },
     ],
   }),
   component: RoomsPage,
@@ -73,6 +81,78 @@ function RoomsPage() {
           <div className="grid md:grid-cols-3 gap-1">
             {ROOMS.map((r) => (
               <RoomCard key={r.id} room={r} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* POOL */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-2 gap-1">
+            {POOL_IMAGES.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`Swimming pool at Cosy Corner — photo ${i + 1}`}
+                width={800}
+                height={800}
+                loading="lazy"
+                className="w-full h-56 sm:h-72 object-cover border border-border"
+              />
+            ))}
+          </div>
+          <div>
+            <p className="section-tag">On The Grounds</p>
+            <h2 className="section-title mb-5">
+              Swimming <em>Pool</em>
+            </h2>
+            <p className="text-muted-foreground leading-[2] text-[0.83rem] mb-4">
+              Cool off in our outdoor pool, set against a private feature wall. Pool access is included with
+              day, night and full day & night bookings — short stay guests and outdoor-only visitors can add
+              pool access for a small fee below.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {POOL_FEES.map((f) => (
+                <span
+                  key={f.label}
+                  className="text-[0.65rem] tracking-[0.1em] uppercase px-3 py-2 border border-[oklch(0.76_0.13_85/0.3)] text-gold"
+                >
+                  {f.label} — R{f.price}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* RONDAVELS */}
+      <section className="py-24 px-6 bg-bg4">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div className="order-2 md:order-1">
+            <p className="section-tag">A Local Touch</p>
+            <h2 className="section-title mb-5">
+              Traditional <em>Rondavels</em>
+            </h2>
+            <p className="text-muted-foreground leading-[2] text-[0.83rem]">
+              Two thatched rondavels sit on the grounds, hand-painted with traditional Ndebele patterns — a
+              distinctive spot to relax outdoors and take in the setting. Ask our team about using this space
+              during your stay.
+            </p>
+          </div>
+          <div className="order-1 md:order-2 grid grid-cols-2 gap-1">
+            {RONDAVEL_IMAGES.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`Thatched rondavel at Cosy Corner — photo ${i + 1}`}
+                width={800}
+                height={800}
+                loading="lazy"
+                className={`w-full object-cover border border-border ${
+                  i === 0 ? "col-span-2 h-56 sm:h-72" : "h-40"
+                }`}
+              />
             ))}
           </div>
         </div>

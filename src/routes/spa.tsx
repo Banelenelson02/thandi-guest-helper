@@ -1,74 +1,103 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import spaImg from "@/assets/spa.jpg";
-
-const SERVICES = [
-  { icon: "💆", name: "Full Body Massage", desc: "60 or 90-minute sessions to melt away tension and restore vitality." },
-  { icon: "✨", name: "Facial Treatments", desc: "Customised facials using premium skincare for radiant, glowing skin." },
-  { icon: "💅", name: "Manicure & Pedicure", desc: "Luxurious nail treatments with premium polishes and hand care." },
-  { icon: "🌸", name: "Aromatherapy", desc: "Essential oil blends tailored to your mood and wellness needs." },
-];
+import { POOL_IMAGES, RONDAVEL_IMAGES, POOL_FEES } from "@/data/rooms";
 
 export const Route = createFileRoute("/spa")({
   head: () => ({
     meta: [
-      { title: "Spa & Wellness | Cosy Corner Guest House" },
+      { title: "Pool & Grounds | Cosy Corner Guest House" },
       {
         name: "description",
         content:
-          "Massages, facials, manicures, pedicures and aromatherapy. Premium spa treatments delivered by expert therapists.",
+          "A swimming pool and two hand-painted rondavels on the grounds at Cosy Corner Guest House, Hlalanikahle, eMalahleni.",
       },
-      { property: "og:title", content: "Spa & Wellness | Cosy Corner" },
+      { property: "og:title", content: "Pool & Grounds | Cosy Corner" },
       {
         property: "og:description",
-        content: "Indulge in our world-class spa treatments — restore balance and rejuvenate the body.",
+        content: "Swimming pool and traditional rondavels on the grounds.",
       },
-      { property: "og:image", content: spaImg },
-      { name: "twitter:image", content: spaImg },
+      { property: "og:image", content: POOL_IMAGES[0] },
+      { name: "twitter:image", content: POOL_IMAGES[0] },
     ],
   }),
-  component: SpaPage,
+  component: PoolPage,
 });
 
-function SpaPage() {
+function PoolPage() {
   return (
-    <section className="py-24 px-6 bg-bg4 relative overflow-hidden">
-      <div className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,oklch(0.76_0.13_85/0.05)_0%,transparent_70%)] pointer-events-none" />
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center relative">
-        <div>
-          <img
-            src={spaImg}
-            alt="Luxury spa treatment room"
-            width={1280}
-            height={960}
-            loading="lazy"
-            className="w-full h-[500px] object-cover border border-border"
-          />
-        </div>
-        <div>
-          <p className="section-tag">Wellness &amp; Relaxation</p>
-          <h1 className="section-title mb-6">
-            Our Signature <em>Spa Experience</em>
-          </h1>
-          <p className="text-muted-foreground leading-[2] text-[0.83rem] mb-8">
-            Indulge in our world-class spa treatments designed to restore balance, rejuvenate the body, and calm
-            the mind. Our expert therapists use premium products to deliver truly transformative experiences.
-          </p>
-          <Link to="/booking" search={{ type: "spa" }} className="btn-primary">Book a Treatment</Link>
+    <>
+      {/* POOL */}
+      <section className="py-24 px-6 bg-bg4">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-2 gap-1">
+            {POOL_IMAGES.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`Swimming pool at Cosy Corner — photo ${i + 1}`}
+                width={800}
+                height={800}
+                loading="lazy"
+                className="w-full h-56 sm:h-72 object-cover border border-border"
+              />
+            ))}
+          </div>
+          <div>
+            <p className="section-tag">On The Grounds</p>
+            <h1 className="section-title mb-6">
+              Swimming <em>Pool</em>
+            </h1>
+            <p className="text-muted-foreground leading-[2] text-[0.83rem] mb-8">
+              Cool off in our outdoor pool, set against a private feature wall. Pool access is included with
+              day, night and full day & night room bookings — or add it on for a small fee if you're just
+              visiting for the day.
+            </p>
+            <Link to="/booking" search={{ type: "spa" }} className="btn-primary">Book a Visit</Link>
 
-          <div className="grid sm:grid-cols-2 gap-4 mt-10">
-            {SERVICES.map((s) => (
-              <div
-                key={s.name}
-                className="p-5 border border-[oklch(0.76_0.13_85/0.12)] bg-white/[0.02] hover:border-gold hover:bg-[oklch(0.76_0.13_85/0.04)] transition-all"
-              >
-                <div className="text-2xl mb-2">{s.icon}</div>
-                <h3 className="font-display text-lg mb-1">{s.name}</h3>
-                <p className="text-[0.68rem] text-muted-foreground leading-[1.7]">{s.desc}</p>
-              </div>
+            <div className="flex flex-wrap gap-3 mt-8">
+              {POOL_FEES.map((f) => (
+                <span
+                  key={f.label}
+                  className="text-[0.65rem] tracking-[0.1em] uppercase px-3 py-2 border border-[oklch(0.76_0.13_85/0.3)] text-gold"
+                >
+                  {f.label} — R{f.price}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* RONDAVELS */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <div className="order-2 md:order-1">
+            <p className="section-tag">A Local Touch</p>
+            <h2 className="section-title mb-6">
+              Traditional <em>Rondavels</em>
+            </h2>
+            <p className="text-muted-foreground leading-[2] text-[0.83rem]">
+              Two thatched rondavels sit on the grounds, hand-painted with traditional Ndebele patterns —
+              a distinctive spot to sit outdoors and take in the setting. Ask our team about using this
+              space during your stay.
+            </p>
+          </div>
+          <div className="order-1 md:order-2 grid grid-cols-2 gap-1">
+            {RONDAVEL_IMAGES.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`Thatched rondavel at Cosy Corner — photo ${i + 1}`}
+                width={800}
+                height={800}
+                loading="lazy"
+                className={`w-full object-cover border border-border ${
+                  i === 0 ? "col-span-2 h-56 sm:h-72" : "h-40"
+                }`}
+              />
             ))}
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

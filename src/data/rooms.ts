@@ -1,6 +1,50 @@
-import roomDeluxe from "@/assets/room-deluxe.jpg";
-import roomExecutive from "@/assets/room-executive.jpg";
-import roomGarden from "@/assets/room-garden.jpg";
+// Room photos
+import room1_1 from "@/assets/rooms/room-1/room-1-1.jpg";
+import room1_2 from "@/assets/rooms/room-1/room-1-2.jpg";
+import room1_3 from "@/assets/rooms/room-1/room-1-3.jpg";
+import room1_4 from "@/assets/rooms/room-1/room-1-4.jpg";
+import room1_5 from "@/assets/rooms/room-1/room-1-5.jpg";
+import room1_6 from "@/assets/rooms/room-1/room-1-6.jpg";
+
+import room2_1 from "@/assets/rooms/room-2/room-2-1.jpg";
+import room2_2 from "@/assets/rooms/room-2/room-2-2.jpg";
+import room2_3 from "@/assets/rooms/room-2/room-2-3.jpg";
+import room2_4 from "@/assets/rooms/room-2/room-2-4.jpg";
+import room2_5 from "@/assets/rooms/room-2/room-2-5.jpg";
+
+import room3_1 from "@/assets/rooms/room-3/room-3-1.jpg";
+import room3_2 from "@/assets/rooms/room-3/room-3-2.jpg";
+import room3_3 from "@/assets/rooms/room-3/room-3-3.jpg";
+
+import room4_1 from "@/assets/rooms/room-4/room-4-1.jpg";
+import room4_2 from "@/assets/rooms/room-4/room-4-2.jpg";
+import room4_3 from "@/assets/rooms/room-4/room-4-3.jpg";
+import room4_4 from "@/assets/rooms/room-4/room-4-4.jpg";
+import room4_5 from "@/assets/rooms/room-4/room-4-5.jpg";
+
+import room5_1 from "@/assets/rooms/room-5/room-5-1.jpg";
+import room5_2 from "@/assets/rooms/room-5/room-5-2.jpg";
+import room5_3 from "@/assets/rooms/room-5/room-5-3.jpg";
+
+// Bathroom (shared, Room 3 & 5)
+import bathroom35_1 from "@/assets/rooms/bathroom-3-5/bathroom-3-5-1.jpg";
+import bathroom35_2 from "@/assets/rooms/bathroom-3-5/bathroom-3-5-2.jpg";
+
+// Inside hall
+import hall1 from "@/assets/rooms/inside-hall/inside-hall-1.jpg";
+import hall2 from "@/assets/rooms/inside-hall/inside-hall-2.jpg";
+import hall3 from "@/assets/rooms/inside-hall/inside-hall-3.jpg";
+
+// Outside / grounds / rondavel
+import outside1 from "@/assets/rooms/outside/outside-1.jpg";
+import outside2 from "@/assets/rooms/outside/outside-2.jpg";
+import outside3 from "@/assets/rooms/outside/outside-3.jpg";
+import outside4 from "@/assets/rooms/outside/outside-4.jpg";
+import outside5 from "@/assets/rooms/outside/outside-5.jpg";
+
+// Pool
+import pool1 from "@/assets/rooms/pool/pool-1.jpg";
+import pool2 from "@/assets/rooms/pool/pool-2.jpg";
 
 export type BookingType = "day" | "night" | "short" | "full";
 
@@ -40,44 +84,59 @@ export type Room = {
   id: string;
   name: string;
   ensuite: boolean;
-  image: string;
+  images: string[];
   description: string;
 };
 
+// NOTE: descriptions are intentionally understated to match the real
+// photos — comfortable and clean, not "luxury resort" language.
 export const ROOMS: Room[] = [
   {
     id: "room-1",
     name: "Room 1",
     ensuite: true,
-    image: roomDeluxe,
-    description: "Double bedroom with private toilet & shower, sleeps up to 2 guests.",
+    images: [room1_1, room1_2, room1_3, room1_4, room1_5, room1_6],
+    description:
+        "A comfortable double room with its own toilet and shower, a small lounge area, TV and bar fridge.",
   },
   {
     id: "room-2",
     name: "Room 2",
     ensuite: true,
-    image: roomExecutive,
-    description: "Double bedroom with private toilet & shower, sleeps up to 2 guests.",
+    images: [room2_1, room2_2, room2_3, room2_4, room2_5],
+    description:
+        "A comfortable double room with its own toilet and shower, TV and bar fridge — everything you need for a relaxed stay.",
   },
   {
     id: "room-3",
     name: "Room 3",
     ensuite: false,
-    image: roomGarden,
-    description: "Double bedroom sharing a toilet with Room 5, sleeps up to 2 guests.",
+    images: [room3_1, room3_2, room3_3],
+    description:
+        "A comfortable double room that shares a toilet with Room 5, with TV and bar fridge included.",
   },
   {
     id: "room-4",
     name: "Room 4",
     ensuite: true,
-    image: roomDeluxe,
-    description: "Double bedroom with private toilet & shower, sleeps up to 2 guests.",
+    images: [room4_1, room4_2, room4_3, room4_4, room4_5],
+    description:
+        "A comfortable double room with its own toilet and shower, TV and bar fridge — clean and well kept.",
   },
   {
     id: "room-5",
     name: "Room 5",
     ensuite: false,
-    image: roomExecutive,
-    description: "Double bedroom sharing a toilet with Room 3, sleeps up to 2 guests.",
+    images: [room5_1, room5_2, room5_3],
+    description:
+        "A comfortable double room that shares a toilet with Room 3, with TV and bar fridge included.",
   },
 ];
+
+export const SHARED_BATHROOM_IMAGES = [bathroom35_1, bathroom35_2];
+export const HALL_IMAGES = [hall1, hall2, hall3];
+export const GROUNDS_IMAGES = [outside1, outside2, outside3, outside4, outside5];
+export const POOL_IMAGES = [pool1, pool2];
+
+
+export const RONDAVEL_IMAGES = [outside2, outside3, outside5];
