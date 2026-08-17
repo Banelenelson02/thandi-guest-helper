@@ -19,12 +19,19 @@ export function ThandiChat() {
   const [showHandover, setShowHandover] = useState(false);
   const [exchanges, setExchanges] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, loading]);
 
-  const time = () => new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
+  const time = () =>
+    mounted
+      ? new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Johannesburg" })
+      : "";
+
 
   async function send(text: string) {
     const trimmed = text.trim();
