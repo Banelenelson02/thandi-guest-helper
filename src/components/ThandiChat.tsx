@@ -18,7 +18,12 @@ export function ThandiChat() {
   const [showQuick, setShowQuick] = useState(true);
   const [showHandover, setShowHandover] = useState(false);
   const [exchanges, setExchanges] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -128,7 +133,9 @@ export function ThandiChat() {
               >
                 {m.content}
               </div>
-              <div className={`text-[0.55rem] text-muted-foreground mt-1 px-1 ${m.role === "user" ? "text-right" : ""}`}>{time()}</div>
+              {mounted && (
+                <div className={`text-[0.55rem] text-muted-foreground mt-1 px-1 ${m.role === "user" ? "text-right" : ""}`}>{time()}</div>
+              )}
             </div>
           ))}
 
