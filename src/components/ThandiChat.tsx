@@ -18,7 +18,12 @@ export function ThandiChat() {
   const [showQuick, setShowQuick] = useState(true);
   const [showHandover, setShowHandover] = useState(false);
   const [exchanges, setExchanges] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
