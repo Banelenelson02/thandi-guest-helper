@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import aboutImg from "@/assets/rooms/signage/billboard.jpg";
+import aboutImg from "@/assets/rooms/inside-hall/inside-hall-1.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -29,7 +29,7 @@ function AboutPage() {
           <div>
             <img
                 src={aboutImg}
-                alt="Cosy Corner Guest House signage and thatched rondavel"
+                alt="Cosy Corner Guest House hallway"
                 width={1280}
                 height={960}
                 loading="lazy"
