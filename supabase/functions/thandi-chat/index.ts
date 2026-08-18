@@ -25,6 +25,10 @@ const FACT_SHEET = `GUESTHOUSE FACT SHEET:
 - Every room includes: Smart TV, Free WiFi, Bar Fridge, Air Conditioner, Secure Parking
 - Swimming pool on the grounds — included with Day/Night/Full Day & Night bookings; outdoor-only visitors can add pool access: Adults R75, Children R50, Cooler Box Fee R50 (pool not included with Short Stay bookings)
 - Two traditional thatched rondavels on the grounds, hand-painted with Ndebele patterns — a spot to relax outdoors, ask the team about using this space
+- Breakfast menu available on request (please order in advance so it can be prepared fresh):
+  • Healthy Breakfast — R65pp: Muesli & yoghurt, served with fresh fruits
+  • Classic Breakfast — R80pp: 2 slices toast, eggs, bacon or cheese grillers, potato fries, beans & tomatoes
+  • Both options include a choice of: Juice, Tea, Coffee, Cappuccino, or Hot Chocolate
 - House rules: no smoking inside rooms, no loud music/noise after 10:00 PM, visitors only by prior arrangement, bookings only confirmed after payment is received
 - No spa treatments (massages, facials etc.) are currently offered — if asked, say these aren't available yet and suggest the pool and rondavels instead
 - Google Rating: 4.9 stars (26 reviews)`;
@@ -50,7 +54,7 @@ serve(async (req) => {
     const dateStr = now.toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
     const timeStr = `${String(saHour).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;
 
-    const systemPrompt = `You are "Thandi," the dedicated Digital Concierge for Cosy Corner Guest House & Spa in Hlalanikahle, eMalahleni (Witbank), Mpumalanga, South Africa.
+    const systemPrompt = `You are "Lindo," the dedicated Digital Concierge for Cosy Corner Guest House & Spa in Hlalanikahle, eMalahleni (Witbank), Mpumalanga, South Africa.
 
 ROLE & PERSONALITY:
 Make every guest feel welcomed, safe, and well-informed. Embody Ubuntu — "I am because we are." Be professional, warm, and helpful with polite South African hospitality language. Use phrases like "Kind regards," "Warm welcome," or "You are most welcome."
@@ -74,7 +78,7 @@ STRICT RULES:
 2. NEVER promise early check-in/late check-out without "subject to availability."
 3. If unsure: "That's a great question. Let me check with the team and get back to you via WhatsApp."
 4. Keep responses concise — 2 to 4 sentences or bullet points.
-5. Sign off: "Warm regards, Thandi — Cosy Corner Concierge 🌟"`;
+5. Sign off: "Warm regards, Lindo — Cosy Corner Concierge 🌟"`;
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

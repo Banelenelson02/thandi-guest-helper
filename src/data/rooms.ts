@@ -70,6 +70,34 @@ export const AMENITIES = [
   "Pool Access (except short stays)",
 ];
 
+export type BreakfastOption = {
+  name: string;
+  price: number;
+  items: string[];
+};
+
+export const BREAKFAST_OPTIONS: BreakfastOption[] = [
+  {
+    name: "Healthy Breakfast",
+    price: 65,
+    items: ["Muesli & yoghurt", "Served with fresh fruits"],
+  },
+  {
+    name: "Classic Breakfast",
+    price: 80,
+    items: [
+      "2 slices brown or white toast",
+      "Eggs",
+      "Bacon or cheese grillers",
+      "Potato fries",
+      "Beans & tomatoes",
+    ],
+  },
+];
+
+export const BREAKFAST_DRINKS = ["Juice", "Tea", "Coffee", "Cappuccino", "Hot Chocolate"];
+
+
 export const HOUSE_RULES = [
   "Check-in time: 10:00 AM",
   "Check-out time: 9:00 AM",
@@ -138,5 +166,7 @@ export const HALL_IMAGES = [hall1, hall2, hall3];
 export const GROUNDS_IMAGES = [outside1, outside2, outside3, outside4, outside5];
 export const POOL_IMAGES = [pool1, pool2];
 
-
+// The property includes two thatched rondavels on the grounds —
+// a distinctive local feature, shown here honestly as "on the grounds"
+// rather than a separate bookable unit, until confirmed otherwise.
 export const RONDAVEL_IMAGES = [outside2, outside3, outside5];

@@ -9,23 +9,6 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-/**
- * Wraps a set of images so clicking any of them opens a large,
- * swipeable lightbox view. Used for the Pool and Rondavel photo
- * grids (and anywhere else showing a small set of real photos).
- *
- * Usage:
- *   <ImageLightbox images={POOL_IMAGES} altPrefix="Swimming pool">
- *     {(openAt) => (
- *       <div className="grid grid-cols-2 gap-1">
- *         {POOL_IMAGES.map((img, i) => (
- *           <img key={i} src={img} onClick={() => openAt(i)}
- *                className="cursor-zoom-in ..." />
- *         ))}
- *       </div>
- *     )}
- *   </ImageLightbox>
- */
 export function ImageLightbox({
                                   images,
                                   altPrefix,
@@ -38,7 +21,10 @@ export function ImageLightbox({
     const [open, setOpen] = useState(false);
     const [api, setApi] = useState<CarouselApi>();
 
+    console.log("ImageLightbox rendering, open =", open);
+
     function openAt(index: number) {
+        console.log("openAt called with index", index);
         setOpen(true);
         setTimeout(() => api?.scrollTo(index), 0);
     }
@@ -46,6 +32,24 @@ export function ImageLightbox({
     return (
         <>
             {children(openAt)}
+
+            {open && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "red",
+                        zIndex: 9999,
+                        color: "white",
+                        fontSize: "2rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
+                    TEST — DIALOG STATE IS OPEN
+                </div>
+            )}
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="max-w-4xl w-[92vw] p-0 bg-bg2 border-gold/30 overflow-hidden">
