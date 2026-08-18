@@ -133,7 +133,9 @@ export function ThandiChat() {
               >
                 {m.content}
               </div>
-              <div className={`text-[0.55rem] text-muted-foreground mt-1 px-1 ${m.role === "user" ? "text-right" : ""}`}>{time()}</div>
+              {mounted && (
+                <div className={`text-[0.55rem] text-muted-foreground mt-1 px-1 ${m.role === "user" ? "text-right" : ""}`}>{time()}</div>
+              )}
             </div>
           ))}
 
