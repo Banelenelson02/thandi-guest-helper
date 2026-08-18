@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import emailjs from "@emailjs/browser";
 import { z } from "zod";
-import { ROOMS } from "@/data/rooms";
+import { ROOMS, BREAKFAST_OPTIONS, BOOKING_TYPES } from "@/data/rooms";
 
 type SearchParams = { room?: string; type?: string };
 
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/booking")({
       {
         name: "description",
         content:
-          "Reserve your room or spa treatment at Cosy Corner Guest House & Spa in eMalahleni. Day, night and full day bookings available.",
+            "Reserve your room or spa treatment at Cosy Corner Guest House & Spa in eMalahleni. Day, night and full day bookings available.",
       },
       { property: "og:title", content: "Book Your Stay | Cosy Corner" },
       { property: "og:description", content: "Reserve your room or spa treatment online. Confirmation within hours." },
@@ -32,24 +32,25 @@ const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
 const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
 
 const schema = z
-  .object({
-    name: z.string().trim().min(2, "Please enter your full name").max(100),
-    email: z.string().trim().email("Please enter a valid email").max(255),
-    phone: z
-      .string()
-      .trim()
-      .regex(/^(\+27|0)[6-8][0-9]{8}$/, "Please enter a valid SA phone number"),
-    bookingType: z.string().min(1, "Please select a booking type"),
-    room: z.string().min(1, "Please select a room"),
-    guests: z.string().min(1),
-    checkIn: z.string().min(1, "Please select a check-in date"),
-    checkOut: z.string().optional(),
-    notes: z.string().max(1000).optional(),
-  })
-  .refine((d) => !d.checkOut || d.checkOut >= d.checkIn, {
-    message: "Check-out must be after check-in",
-    path: ["checkOut"],
-  });
+    .object({
+      name: z.string().trim().min(2, "Please enter your full name").max(100),
+      email: z.string().trim().email("Please enter a valid email").max(255),
+      phone: z
+          .string()
+          .trim()
+          .regex(/^(\+27|0)[6-8][0-9]{8}$/, "Please enter a valid SA phone number"),
+      bookingType: z.string().min(1, "Please select a booking type"),
+      room: z.string().min(1, "Please select a room"),
+      guests: z.string().min(1),
+      checkIn: z.string().min(1, "Please select a check-in date"),
+      checkOut: z.string().optional(),
+      breakfast: z.string().optional(),
+      notes: z.string().max(1000).optional(),
+    })
+    .refine((d) => !d.checkOut || d.checkOut >= d.checkIn, {
+      message: "Check-out must be after check-in",
+      path: ["checkOut"],
+    });
 
 function BookingPage() {
   const search = Route.useSearch();
@@ -80,9 +81,11 @@ function BookingPage() {
       if (EMAILJS_SERVICE_ID.startsWith("YOUR_")) {
         // Not configured yet — open WhatsApp as fallback
         const summary =
-          `New Booking Request:\n\nName: ${parsed.data.name}\nEmail: ${parsed.data.email}\nPhone: ${parsed.data.phone}\n` +
-          `Type: ${parsed.data.bookingType}\nRoom: ${parsed.data.room}\nGuests: ${parsed.data.guests}\n` +
-          `Check-in: ${parsed.data.checkIn}\nCheck-out: ${parsed.data.checkOut ?? "—"}\nNotes: ${parsed.data.notes ?? "—"}`;
+            `New Booking Request:\n\nName: ${parsed.data.name}\nEmail: ${parsed.data.email}\nPhone: ${parsed.data.phone}\n` +
+            `Type: ${parsed.data.bookingType}\nRoom: ${parsed.data.room}\nGuests: ${parsed.data.guests}\n` +
+            `Check-in: ${parsed.data.checkIn}\nCheck-out: ${parsed.data.checkOut ?? "—"}\n` +
+            `Breakfast: ${parsed.data.breakfast && parsed.data.breakfast !== "none" ? parsed.data.breakfast : "No breakfast"}\n` +
+            `Notes: ${parsed.data.notes ?? "—"}`;
         window.open(`https://wa.me/27641236760?text=${encodeURIComponent(summary)}`, "_blank");
         setStatus({
           kind: "success",
@@ -105,88 +108,123 @@ function BookingPage() {
   }
 
   return (
-    <section className="py-24 px-6 bg-bg2">
-      <div className="max-w-3xl mx-auto text-center">
-        <p className="section-tag">Reserve Your Stay</p>
-        <h1 className="section-title mb-3">
-          Make a <em>Booking</em>
-        </h1>
-        <p className="text-[0.85rem] text-muted-foreground mb-2">
-          Fill in your details and we'll confirm your reservation within a few hours
-        </p>
+      <section className="py-24 px-6 bg-bg2">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="section-tag">Reserve Your Stay</p>
+          <h1 className="section-title mb-3">
+            Make a <em>Booking</em>
+          </h1>
+          <p className="text-[0.85rem] text-muted-foreground mb-2">
+            Fill in your details and we'll confirm your reservation within a few hours
+          </p>
 
-        <form onSubmit={onSubmit} className="grid sm:grid-cols-2 gap-6 mt-10 text-left" noValidate>
-          <Field label="Full Name" name="name" error={errors.name} required />
-          <Field label="Email Address" name="email" type="email" error={errors.email} required />
-          <Field label="Phone / WhatsApp" name="phone" type="tel" placeholder="0xx xxx xxxx" error={errors.phone} required />
+          <form onSubmit={onSubmit} className="grid sm:grid-cols-2 gap-6 mt-10 text-left" noValidate>
+            <Field label="Full Name" name="name" error={errors.name} required />
+            <Field label="Email Address" name="email" type="email" error={errors.email} required />
+            <Field label="Phone / WhatsApp" name="phone" type="tel" placeholder="0xx xxx xxxx" error={errors.phone} required />
 
-          <SelectField label="Booking Type" name="bookingType" error={errors.bookingType} defaultValue="">
-            <option value="">Select…</option>
-            <option value="day">Day Booking — R350 (10am–4pm)</option>
-            <option value="night">Night Booking — R450 (5pm–9am)</option>
-            <option value="short">Short Stay — R200 (3 hours, 9am–5pm)</option>
-            <option value="full">Full Day & Night — R625 (24 hours)</option>
-          </SelectField>
+            <SelectField label="Booking Type" name="bookingType" error={errors.bookingType} defaultValue={search.type === "spa" ? "spa" : ""}>
+              <option value="">Select…</option>
+              {BOOKING_TYPES.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.label} — R{b.price} ({b.hours})
+                  </option>
+              ))}
+              <option value="spa">Pool Access Only</option>
+            </SelectField>
 
-          <SelectField label="Room" name="room" error={errors.room} defaultValue={search.room ?? ""}>
-            <option value="">Select…</option>
-            {ROOMS.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.name} — {r.ensuite ? "En-suite" : "Shared toilet"}
-              </option>
-            ))}
-          </SelectField>
+            <SelectField label="Room Type" name="room" error={errors.room} defaultValue={search.room ?? ""}>
+              <option value="">Select…</option>
+              {ROOMS.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} — {r.ensuite ? "En-suite" : "Shared Toilet"}
+                  </option>
+              ))}
+              <option value="spa-only">Pool Access Only</option>
+            </SelectField>
 
-          <SelectField label="Number of Guests" name="guests" defaultValue="1">
-            <option value="1">1 Guest</option>
-            <option value="2">2 Guests</option>
-            <option value="3">3 Guests</option>
-            <option value="4">4+ Guests</option>
-          </SelectField>
+            <SelectField label="Number of Guests" name="guests" defaultValue="1">
+              <option value="1">1 Guest</option>
+              <option value="2">2 Guests</option>
+              <option value="3">3 Guests</option>
+              <option value="4">4+ Guests</option>
+            </SelectField>
 
-          <Field label="Check-in / Arrival Date" name="checkIn" type="date" error={errors.checkIn} required />
-          <Field label="Check-out / Departure Date" name="checkOut" type="date" error={errors.checkOut} />
+            <Field label="Check-in / Arrival Date" name="checkIn" type="date" error={errors.checkIn} required />
+            <Field label="Check-out / Departure Date" name="checkOut" type="date" error={errors.checkOut} />
 
-          <div className="sm:col-span-2 flex flex-col gap-2">
-            <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">Special Requests or Notes</label>
-            <textarea
-              name="notes"
-              rows={3}
-              className="bg-transparent border-b border-input text-foreground py-3 outline-none focus:border-gold transition-colors resize-y min-h-24 text-[0.8rem]"
-            />
-          </div>
-
-          <div className="sm:col-span-2 text-center mt-3">
-            <button type="submit" disabled={submitting} className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
-              {submitting ? "Sending…" : "✦ Reserve Now ✦"}
-            </button>
-          </div>
-
-          {status.kind !== "idle" && (
-            <div
-              className={`sm:col-span-2 text-center text-[0.78rem] py-3 px-4 mt-2 ${
-                status.kind === "success"
-                  ? "text-[#4caf50] border border-[#4caf50]/30 bg-[#4caf50]/5"
-                  : "text-destructive border border-destructive/30 bg-destructive/5"
-              }`}
-            >
-              {status.msg}
+            <div className="sm:col-span-2 flex flex-col gap-3 border border-border p-5 bg-bg3">
+              <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">
+                Breakfast Add-On (Available for Night & Full Day & Night Bookings)
+              </label>
+              <select
+                  name="breakfast"
+                  defaultValue="none"
+                  className="bg-transparent border-b border-input text-foreground py-3 outline-none focus:border-gold transition-colors text-[0.8rem]"
+              >
+                <option value="none">No breakfast, thanks</option>
+                {BREAKFAST_OPTIONS.map((b) => (
+                    <option key={b.name} value={b.name}>
+                      {b.name} — R{b.price}pp
+                    </option>
+                ))}
+              </select>
+              <div className="grid sm:grid-cols-2 gap-3 mt-1">
+                {BREAKFAST_OPTIONS.map((b) => (
+                    <div key={b.name} className="text-[0.72rem] text-muted-foreground border border-border/60 p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-foreground font-medium">{b.name}</span>
+                        <span className="text-gold font-display text-base">R{b.price}pp</span>
+                      </div>
+                      <span>{b.items.join(", ")}</span>
+                    </div>
+                ))}
+              </div>
+              <p className="text-[0.65rem] text-muted-foreground">
+                Includes your choice of Juice, Tea, Coffee, Cappuccino, or Hot Chocolate. Please order in advance.
+              </p>
             </div>
-          )}
-        </form>
-      </div>
-    </section>
+
+            <div className="sm:col-span-2 flex flex-col gap-2">
+              <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">Special Requests or Notes</label>
+              <textarea
+                  name="notes"
+                  rows={3}
+                  className="bg-transparent border-b border-input text-foreground py-3 outline-none focus:border-gold transition-colors resize-y min-h-24 text-[0.8rem]"
+              />
+            </div>
+
+            <div className="sm:col-span-2 text-center mt-3">
+              <button type="submit" disabled={submitting} className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                {submitting ? "Sending…" : "✦ Reserve Now ✦"}
+              </button>
+            </div>
+
+            {status.kind !== "idle" && (
+                <div
+                    className={`sm:col-span-2 text-center text-[0.78rem] py-3 px-4 mt-2 ${
+                        status.kind === "success"
+                            ? "text-[#4caf50] border border-[#4caf50]/30 bg-[#4caf50]/5"
+                            : "text-destructive border border-destructive/30 bg-destructive/5"
+                    }`}
+                >
+                  {status.msg}
+                </div>
+            )}
+          </form>
+        </div>
+      </section>
   );
 }
 
 function Field({
-  label,
-  name,
-  type = "text",
-  required,
-  error,
-  placeholder,
-}: {
+                 label,
+                 name,
+                 type = "text",
+                 required,
+                 error,
+                 placeholder,
+               }: {
   label: string;
   name: string;
   type?: string;
@@ -195,29 +233,29 @@ function Field({
   placeholder?: string;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">{label}</label>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        className={`bg-transparent border-b text-foreground py-3 outline-none focus:border-gold transition-colors text-[0.8rem] ${
-          error ? "border-destructive" : "border-input"
-        }`}
-      />
-      {error && <span className="text-[0.6rem] text-destructive">{error}</span>}
-    </div>
+      <div className="flex flex-col gap-2">
+        <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">{label}</label>
+        <input
+            name={name}
+            type={type}
+            required={required}
+            placeholder={placeholder}
+            className={`bg-transparent border-b text-foreground py-3 outline-none focus:border-gold transition-colors text-[0.8rem] ${
+                error ? "border-destructive" : "border-input"
+            }`}
+        />
+        {error && <span className="text-[0.6rem] text-destructive">{error}</span>}
+      </div>
   );
 }
 
 function SelectField({
-  label,
-  name,
-  children,
-  defaultValue,
-  error,
-}: {
+                       label,
+                       name,
+                       children,
+                       defaultValue,
+                       error,
+                     }: {
   label: string;
   name: string;
   children: React.ReactNode;
@@ -225,18 +263,18 @@ function SelectField({
   error?: string;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">{label}</label>
-      <select
-        name={name}
-        defaultValue={defaultValue}
-        className={`bg-transparent border-b text-foreground py-3 outline-none focus:border-gold transition-colors text-[0.8rem] ${
-          error ? "border-destructive" : "border-input"
-        }`}
-      >
-        {children}
-      </select>
-      {error && <span className="text-[0.6rem] text-destructive">{error}</span>}
-    </div>
+      <div className="flex flex-col gap-2">
+        <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">{label}</label>
+        <select
+            name={name}
+            defaultValue={defaultValue}
+            className={`bg-transparent border-b text-foreground py-3 outline-none focus:border-gold transition-colors text-[0.8rem] ${
+                error ? "border-destructive" : "border-input"
+            }`}
+        >
+          {children}
+        </select>
+        {error && <span className="text-[0.6rem] text-destructive">{error}</span>}
+      </div>
   );
 }
