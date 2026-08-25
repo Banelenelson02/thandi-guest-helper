@@ -76,15 +76,17 @@ export type BreakfastOption = {
   items: string[];
 };
 
+// NOTE: prices updated per client feedback — Healthy R65→R70,
+// Classic R80→R90.
 export const BREAKFAST_OPTIONS: BreakfastOption[] = [
   {
     name: "Healthy Breakfast",
-    price: 65,
+    price: 70,
     items: ["Muesli & yoghurt", "Served with fresh fruits"],
   },
   {
     name: "Classic Breakfast",
-    price: 80,
+    price: 90,
     items: [
       "2 slices brown or white toast",
       "Eggs",
@@ -95,16 +97,25 @@ export const BREAKFAST_OPTIONS: BreakfastOption[] = [
   },
 ];
 
-export const BREAKFAST_DRINKS = ["Juice", "Tea", "Coffee", "Cappuccino", "Hot Chocolate"];
+// Juice, Tea, Coffee and Cappuccino are included free with either
+// breakfast option. Hot Chocolate carries a small surcharge.
+export const BREAKFAST_DRINKS_INCLUDED = ["Juice", "Tea", "Coffee", "Cappuccino"];
+export const BREAKFAST_DRINK_SURCHARGE = { name: "Hot Chocolate", extra: 11 };
 
+// Kept for anywhere that just needs the full drink list as plain text
+export const BREAKFAST_DRINKS = [...BREAKFAST_DRINKS_INCLUDED, "Hot Chocolate (+R11)"];
 
 export const HOUSE_RULES = [
   "Check-in time: 10:00 AM",
   "Check-out time: 9:00 AM",
-  "No smoking inside the rooms",
+  "A 14% cancellation fee applies to all cancelled bookings",
+  "No refunds once the guest has checked in",
+  "Early departure or shortening of stay after check-in does not qualify for a refund",
+  "Guests are responsible for any damages caused to property or equipment",
+  "Smoking is only permitted in designated smoking areas",
   "No loud music or noise after 10:00 PM",
   "Visitors allowed only by prior arrangement",
-  "Treat our property with respect — right of admission reserved",
+  "Guests must respect other visitors and maintain a peaceful environment",
   "Bookings are only confirmed after payment is received",
 ];
 
