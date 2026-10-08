@@ -8,7 +8,7 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Get in touch with Cosy Corner Guest House & Spa. Address: 4763 Phase 4, Hlalanikahle, eMalahleni, 1045. Call or WhatsApp 064 123 6760.",
+          "Get in touch with Cosy Corner Guest House. Address: 4763 Phase 4, Hlalanikahle, eMalahleni, 1045. Call or WhatsApp 064 123 6760.",
       },
       { property: "og:title", content: "Contact Cosy Corner Guest House" },
       { property: "og:description", content: "Find us in Hlalanikahle, eMalahleni. Call or WhatsApp 064 123 6760." },

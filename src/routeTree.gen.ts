@@ -9,19 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SpaRouteImport } from './routes/spa'
 import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as ReviewsRouteImport } from './routes/reviews'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PoolRouteImport } from './routes/pool'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BookingRouteImport } from './routes/booking'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
-const SpaRoute = SpaRouteImport.update({
-  id: '/spa',
-  path: '/spa',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RoomsRoute = RoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
@@ -30,6 +26,16 @@ const RoomsRoute = RoomsRouteImport.update({
 const ReviewsRoute = ReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoolRoute = PoolRouteImport.update({
+  id: '/pool',
+  path: '/pool',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -58,18 +64,20 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/booking': typeof BookingRoute
   '/contact': typeof ContactRoute
+  '/pool': typeof PoolRoute
+  '/privacy': typeof PrivacyRoute
   '/reviews': typeof ReviewsRoute
   '/rooms': typeof RoomsRoute
-  '/spa': typeof SpaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/booking': typeof BookingRoute
   '/contact': typeof ContactRoute
+  '/pool': typeof PoolRoute
+  '/privacy': typeof PrivacyRoute
   '/reviews': typeof ReviewsRoute
   '/rooms': typeof RoomsRoute
-  '/spa': typeof SpaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,9 +85,10 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/booking': typeof BookingRoute
   '/contact': typeof ContactRoute
+  '/pool': typeof PoolRoute
+  '/privacy': typeof PrivacyRoute
   '/reviews': typeof ReviewsRoute
   '/rooms': typeof RoomsRoute
-  '/spa': typeof SpaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,20 +97,30 @@ export interface FileRouteTypes {
     | '/about'
     | '/booking'
     | '/contact'
+    | '/pool'
+    | '/privacy'
     | '/reviews'
     | '/rooms'
-    | '/spa'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/booking' | '/contact' | '/reviews' | '/rooms' | '/spa'
+  to:
+    | '/'
+    | '/about'
+    | '/booking'
+    | '/contact'
+    | '/pool'
+    | '/privacy'
+    | '/reviews'
+    | '/rooms'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/booking'
     | '/contact'
+    | '/pool'
+    | '/privacy'
     | '/reviews'
     | '/rooms'
-    | '/spa'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -109,20 +128,14 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BookingRoute: typeof BookingRoute
   ContactRoute: typeof ContactRoute
+  PoolRoute: typeof PoolRoute
+  PrivacyRoute: typeof PrivacyRoute
   ReviewsRoute: typeof ReviewsRoute
   RoomsRoute: typeof RoomsRoute
-  SpaRoute: typeof SpaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/spa': {
-      id: '/spa'
-      path: '/spa'
-      fullPath: '/spa'
-      preLoaderRoute: typeof SpaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/rooms': {
       id: '/rooms'
       path: '/rooms'
@@ -135,6 +148,20 @@ declare module '@tanstack/react-router' {
       path: '/reviews'
       fullPath: '/reviews'
       preLoaderRoute: typeof ReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pool': {
+      id: '/pool'
+      path: '/pool'
+      fullPath: '/pool'
+      preLoaderRoute: typeof PoolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -173,9 +200,10 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BookingRoute: BookingRoute,
   ContactRoute: ContactRoute,
+  PoolRoute: PoolRoute,
+  PrivacyRoute: PrivacyRoute,
   ReviewsRoute: ReviewsRoute,
   RoomsRoute: RoomsRoute,
-  SpaRoute: SpaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

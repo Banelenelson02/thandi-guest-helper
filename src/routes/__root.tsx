@@ -26,11 +26,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cosy Corner Guest House & Spa | eMalahleni" },
+      { title: "Cosy Corner Guest House | eMalahleni" },
       {
         name: "description",
         content:
-          "Luxury guest house and spa in Hlalanikahle, eMalahleni. Modern rooms, signature spa treatments and warm South African hospitality.",
+          "Luxury guest house in Hlalanikahle, eMalahleni. Comfortable rooms, a swimming pool and warm South African hospitality.",
       },
       { name: "author", content: "Cosy Corner Guest House" },
       { property: "og:type", content: "website" },

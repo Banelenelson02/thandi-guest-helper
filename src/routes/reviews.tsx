@@ -1,19 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const REVIEWS = [
-  {
-    text: "Absolutely stunning place! The rooms are modern and spotlessly clean. The spa treatment was the highlight — I felt completely rejuvenated. Will definitely be back!",
-    name: "Nomsa T. — Johannesburg",
-  },
-  {
-    text: "Exceptional service from the moment we arrived. Smart TV in every room was a lovely touch. The staff are warm and professional. Highly recommend!",
-    name: "Michael D. — Pretoria",
-  },
-  {
-    text: "Best guest house in eMalahleni by far. Beautiful modern grey design, incredibly comfortable beds, and the spa treatments are divine. Worth every rand!",
-    name: "Zanele M. — Durban",
-  },
-];
+const REVIEWS = [{ text: "Exceptional service from the moment we arrived. Smart TV in every room was a lovely touch. The staff are warm and professional. Highly recommend!", name: "Michael D. — Pretoria" }];
 
 export const Route = createFileRoute("/reviews")({
   head: () => ({
@@ -21,7 +8,7 @@ export const Route = createFileRoute("/reviews")({
       { title: "Guest Reviews | Cosy Corner Guest House — 4.9★" },
       {
         name: "description",
-        content: "Read what our guests say about Cosy Corner Guest House & Spa. Rated 4.9★ on Google with 26+ reviews.",
+        content: "Read what our guests say about Cosy Corner Guest House. Rated 4.9★ on Google with 26+ reviews.",
       },
       { property: "og:title", content: "Guest Reviews | Cosy Corner" },
       { property: "og:description", content: "4.9★ rating on Google. Hear what our guests say about their stay." },

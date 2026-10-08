@@ -4,13 +4,13 @@ import aboutImg from "@/assets/rooms/inside-hall/inside-hall-1.jpg";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Us | Cosy Corner Guest House & Spa" },
+      { title: "About Us | Cosy Corner Guest House" },
       {
         name: "description",
         content:
             "Cosy Corner is a family-run guest house in Hlalanikahle, eMalahleni, with five comfortable double rooms, a pool and traditional rondavels on the grounds.",
       },
-      { property: "og:title", content: "About Cosy Corner Guest House & Spa" },
+      { property: "og:title", content: "About Cosy Corner Guest House" },
       {
         property: "og:description",
         content: "A comfortable, well-kept guest house in Hlalanikahle, eMalahleni.",
@@ -42,7 +42,7 @@ function AboutPage() {
               A Comfortable Stay in <em>Hlalanikahle</em>
             </h1>
             <p className="text-muted-foreground leading-[2] text-[0.83rem] mb-5">
-              Cosy Corner Guest House &amp; Spa is set in the community of Hlalanikahle, eMalahleni. We offer
+              Cosy Corner Guest House is set in the community of Hlalanikahle, eMalahleni. We offer
               five double rooms, each with a TV and bar fridge, plus a swimming pool and two hand-painted
               rondavels on the grounds.
             </p>

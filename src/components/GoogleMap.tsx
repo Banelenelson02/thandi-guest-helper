@@ -1,5 +1,5 @@
 /**
- * Free Google Maps embed for Cosy Corner Guest House & Spa.
+ * Free Google Maps embed for Cosy Corner Guest House.
  *
  * Uses Google's classic embeddable map (no API key, no billing account,
  * no cost — ever). Pinned to exact GPS coordinates for accuracy.
@@ -18,7 +18,7 @@ export function GoogleMap() {
         <div className="flex flex-col gap-3">
             <div className="h-72 border-2 border-gold overflow-hidden">
                 <iframe
-                    title="Cosy Corner Guest House & Spa location"
+                    title="Cosy Corner Guest House location"
                     src={EMBED_URL}
                     width="100%"
                     height="100%"

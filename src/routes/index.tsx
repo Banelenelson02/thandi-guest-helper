@@ -6,13 +6,13 @@ import { RoomCard } from "@/components/RoomCard";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cosy Corner Guest House & Spa | eMalahleni" },
+      { title: "Cosy Corner Guest House | eMalahleni" },
       {
         name: "description",
         content:
           "Comfortable double rooms, a swimming pool and traditional rondavels in Hlalanikahle, eMalahleni. Day, night, short stay and full day & night bookings from R200.",
       },
-      { property: "og:title", content: "Cosy Corner Guest House & Spa | eMalahleni" },
+      { property: "og:title", content: "Cosy Corner Guest House | eMalahleni" },
       {
         property: "og:description",
         content: "Comfortable rooms, pool access and rondavels in eMalahleni. Bookings from R200.",
@@ -52,7 +52,7 @@ function HomePage() {
           <h1 className="font-display font-light text-[clamp(2.8rem,8vw,6.5rem)] leading-[1.05] tracking-[0.05em]">
             Cosy Corner
             <br />
-            <em className="italic text-gold">Guest House &amp; Spa</em>
+            <em className="italic text-gold">Guest House</em>
           </h1>
           <p className="text-[0.72rem] tracking-[0.3em] uppercase text-muted-foreground mt-5">
             Comfortable Stays in eMalahleni
@@ -116,7 +116,7 @@ function HomePage() {
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link to="/booking" className="btn-primary">Book Now</Link>
-          <Link to="/spa" className="btn-outline">Pool & Grounds</Link>
+          <Link to="/pool" className="btn-outline">Pool & Grounds</Link>
         </div>
       </section>
     </>
