@@ -1,8 +1,13 @@
+import { Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
+
+import { bookingSummary, validateBooking } from "../../shared/booking.mjs";
+
+import { cleanChatReply, extractHandover, summaryWhatsAppUrl } from "../../shared/handover.mjs";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const QUICK_REPLIES = ["Rooms", "Spa", "Loadshedding", "Parking", "Check-in"];
+const QUICK_REPLIES = ["Rooms", "Pool", "Loadshedding", "Parking", "Check-in"];
 
 export function ThandiChat() {
   const [open, setOpen] = useState(false);
@@ -11,13 +16,14 @@ export function ThandiChat() {
     {
       role: "assistant",
       content:
-        "Warm welcome to Cosy Corner Guest House & Spa! 🌟 I'm Lindo, your digital concierge. I'm here to help with rooms, the spa, bookings, directions or any questions about your stay. How may I assist you today?",
+        "Warm welcome to Cosy Corner Guest House! 🌟 I'm Lindo, your digital concierge. I'm here to help with rooms, pool access, bookings, directions or any questions about your stay. How may I assist you today?",
     },
   ]);
   const [loading, setLoading] = useState(false);
   const [showQuick, setShowQuick] = useState(true);
   const [showHandover, setShowHandover] = useState(false);
-  const [exchanges, setExchanges] = useState(0);
+  const [summary, setSummary] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -27,14 +33,16 @@ export function ThandiChat() {
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, loading]);
+  }, [messages, loading, summary]);
 
   const time = () => new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
 
-  async function send(text: string) {
+  async function send(text: string, prepareSummary = false) {
     const trimmed = text.trim();
+    if (trimmed.length > 2000) return;
     if (!trimmed || loading) return;
     setShowQuick(false);
+    setSummary(null);
     const next: Msg[] = [...messages, { role: "user", content: trimmed }];
     setMessages(next);
     setInput("");
@@ -49,7 +57,8 @@ export function ThandiChat() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next.slice(-24), action: prepareSummary ? "summary" : "chat" }),
+        signal: AbortSignal.timeout(25000),
       });
 
       if (res.status === 429) {
@@ -60,11 +69,14 @@ export function ThandiChat() {
         throw new Error("Chat error");
       } else {
         const data = await res.json();
-        const reply: string = data.reply ?? "Apologies — please WhatsApp us on 064 123 6760. 🌟";
+        const reply = cleanChatReply(data.reply);
         setMessages([...next, { role: "assistant", content: reply }]);
-        const newExchanges = exchanges + 1;
-        setExchanges(newExchanges);
-        if (newExchanges === 3) setTimeout(() => setShowHandover(true), 800);
+        if (data.booking && typeof data.booking === "object" && Object.keys(validateBooking(data.booking)).length === 0) {
+          setSummary(bookingSummary(data.booking));
+        } else if (data.summaryVersion !== 1) {
+          setSummary(extractHandover(data.reply));
+        }
+        setShowHandover(true);
       }
     } catch {
       setMessages([
@@ -76,10 +88,6 @@ export function ThandiChat() {
     }
   }
 
-  const summary = encodeURIComponent(
-    "Hi! I was just chatting with Lindo on the Cosy Corner website. Here's my conversation so far:\n\n" +
-      messages.map((m) => `${m.role === "user" ? "Guest" : "Lindo"}: ${m.content}`).join("\n")
-  );
 
   return (
     <>
@@ -147,23 +155,25 @@ export function ThandiChat() {
             </div>
           )}
 
-          {showHandover && (
+          {summary && !loading && <div className="border border-gold p-3 bg-bg3 text-[0.76rem]" aria-label="Booking summary">
+            <p className="font-semibold text-gold mb-2">Review your booking request</p>
+            <p className="whitespace-pre-wrap">{summary}</p>
+            <p className="my-3">Check these details, then open WhatsApp and press Send. The owner will confirm availability and payment.</p>
+            <a href={summaryWhatsAppUrl(summary)} target="_blank" rel="noopener noreferrer" className="btn-primary block text-center">Open WhatsApp to Send</a>
+            <button type="button" onClick={() => { setSummary(null); inputRef.current?.focus(); }} className="text-gold underline mt-3">Correct details in chat</button>
+          </div>}
+          {showHandover && !summary && (
             <div className="self-start max-w-[88%]">
               <div className="px-3 py-3 bg-bg3 border-l-2 border-gold text-[0.76rem] text-foreground">
-                Would you like to continue this conversation on WhatsApp? 📱
+                Ready to request a booking? Review a clean summary before sending it to the owner on WhatsApp.
               </div>
-              <a
-                href={`https://wa.me/27641236760?text=${summary}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 justify-center bg-[#25D366] text-white px-4 py-2.5 text-[0.62rem] tracking-[0.15em] uppercase mt-2 hover:bg-[#1fad55] transition-colors"
-              >
-                💬 Continue on WhatsApp
-              </a>
+              <button type="button" disabled={loading} onClick={() => send("Please prepare my booking summary using the details I have already given you. Use separate labelled lines for Name, Dates, Guests, Booking Type, Add-ons and Estimated total. Do not invent missing details. Ask me here for anything missing. I will review the summary and send it to the owner on WhatsApp myself.", true)} className="btn-primary block text-center mt-2 disabled:opacity-50">Prepare Booking Summary</button>
+              <a href="https://wa.me/27641236760" target="_blank" rel="noopener noreferrer" className="text-gold underline text-sm inline-block mt-2">Ask the owner directly on WhatsApp</a>
             </div>
           )}
         </div>
 
+        <p className="px-3 text-[0.65rem] text-muted-foreground">AI replies can be incorrect. Please keep sensitive details out of chat. <Link to="/privacy" className="text-gold underline">Privacy notice</Link></p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -172,9 +182,11 @@ export function ThandiChat() {
           className="p-3 border-t border-[oklch(0.76_0.13_85/0.15)] flex gap-2"
         >
           <input
+            ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => { setInput(e.target.value); setSummary(null); }}
             placeholder="Type your message..."
+            maxLength={2000} aria-label="Message to Lindo"
             className="flex-1 bg-bg3 border border-input text-foreground px-3 py-2.5 text-[0.73rem] outline-none focus:border-gold/50 transition-colors"
           />
           <button type="submit" disabled={loading} className="bg-gold hover:bg-gold-light text-bg4 px-3 py-2.5 transition-colors disabled:opacity-50">

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { POOL_IMAGES, RONDAVEL_IMAGES, POOL_FEES } from "@/data/rooms";
 import { ImageLightbox } from "@/components/ImageLightbox";
 
-export const Route = createFileRoute("/spa")({
+export const Route = createFileRoute("/pool")({
   head: () => ({
     meta: [
       { title: "Pool & Grounds | Cosy Corner Guest House" },
@@ -63,7 +63,7 @@ function PoolPage() {
                 day, night and full day & night room bookings — or add it on for a small fee if you're just
                 visiting for the day.
               </p>
-              <Link to="/booking" search={{ type: "spa" }} className="btn-primary">Book a Visit</Link>
+              <Link to="/booking" search={{ type: "pool" }} className="btn-primary">Book a Visit</Link>
 
               <div className="flex flex-wrap gap-3 mt-8">
                 {POOL_FEES.map((f) => (
