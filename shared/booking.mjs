@@ -35,3 +35,10 @@ export function bookingSummary(data) {
   ].join('\n');
 }
 export function whatsappUrl(data) { return `https://wa.me/27641236760?text=${encodeURIComponent(bookingSummary(data))}`; }
+
+export function parseBookingDraft(raw, today = todaySA()) {
+  const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'notes'];
+  const data = Object.fromEntries(fields.map((key) => [key, typeof raw?.[key] === 'string' ? raw[key].trim() : '']));
+  const errors = validateBooking(data, today);
+  return { booking: Object.keys(errors).length ? null : data, errors };
+}

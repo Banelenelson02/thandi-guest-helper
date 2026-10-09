@@ -22,7 +22,7 @@ The 3 and 4+ guest options are intentional. Each room holds at most two guests; 
 
 Breakfast is R70 or R90 per person. Hot chocolate costs an additional R11 per serving. There is no automatic quote, charge or payment processing.
 
-Lindo links to the booking form for a structured, guest-reviewed summary. Conversations are not copied wholesale into WhatsApp. The form intentionally asks guests to enter their details rather than guessing them from chat.
+Lindo collects details in chat. Prepare Booking Summary extracts the guest-provided fields, validates them and displays the summary inside the chat. Missing details and corrections are handled in the same conversation. The guest reviews it before opening WhatsApp. The standalone booking form remains available. The updated edge function must be deployed for chat summaries to work.
 
 ## Chat deployment
 

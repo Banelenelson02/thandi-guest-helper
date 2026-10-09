@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 
+import { bookingSummary, validateBooking, whatsappUrl } from "../../shared/booking.mjs";
+
 type Msg = { role: "user" | "assistant"; content: string };
 
 const QUICK_REPLIES = ["Rooms", "Pool", "Loadshedding", "Parking", "Check-in"];
@@ -18,7 +20,8 @@ export function ThandiChat() {
   const [loading, setLoading] = useState(false);
   const [showQuick, setShowQuick] = useState(true);
   const [showHandover, setShowHandover] = useState(false);
-  const [exchanges, setExchanges] = useState(0);
+  const [booking, setBooking] = useState<Record<string, string> | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -28,15 +31,16 @@ export function ThandiChat() {
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, loading]);
+  }, [messages, loading, booking]);
 
   const time = () => new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
 
-  async function send(text: string) {
+  async function send(text: string, prepareSummary = false) {
     const trimmed = text.trim();
     if (trimmed.length > 2000) return;
     if (!trimmed || loading) return;
     setShowQuick(false);
+    setBooking(null);
     const next: Msg[] = [...messages, { role: "user", content: trimmed }];
     setMessages(next);
     setInput("");
@@ -51,7 +55,7 @@ export function ThandiChat() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: next.slice(-24) }),
+        body: JSON.stringify({ messages: next.slice(-24), action: prepareSummary ? "summary" : "chat" }),
         signal: AbortSignal.timeout(25000),
       });
 
@@ -65,8 +69,8 @@ export function ThandiChat() {
         const data = await res.json();
         const reply: string = data.reply ?? "Apologies — please WhatsApp us on 064 123 6760. 🌟";
         setMessages([...next, { role: "assistant", content: reply }]);
-        const newExchanges = exchanges + 1;
-        setExchanges(newExchanges);
+        if (data.booking && typeof data.booking === "object" && Object.keys(validateBooking(data.booking)).length === 0) setBooking(data.booking);
+        else if (prepareSummary && data.summaryVersion !== 1) setMessages([...next, { role: "assistant", content: "The booking summary service is not available yet. You can continue asking questions here or contact the owner directly on WhatsApp." }]);
         setShowHandover(true);
       }
     } catch {
@@ -146,12 +150,19 @@ export function ThandiChat() {
             </div>
           )}
 
-          {showHandover && (
+          {booking && !loading && <div className="border border-gold p-3 bg-bg3 text-[0.76rem]" aria-label="Booking summary">
+            <p className="font-semibold text-gold mb-2">Review your booking request</p>
+            <p className="whitespace-pre-wrap">{bookingSummary(booking)}</p>
+            <p className="my-3">Check these details, then open WhatsApp and press Send. The owner will confirm availability and payment.</p>
+            <a href={whatsappUrl(booking)} target="_blank" rel="noopener noreferrer" className="btn-primary block text-center">Open WhatsApp to Send</a>
+            <button type="button" onClick={() => { setBooking(null); inputRef.current?.focus(); }} className="text-gold underline mt-3">Correct details in chat</button>
+          </div>}
+          {showHandover && !booking && (
             <div className="self-start max-w-[88%]">
               <div className="px-3 py-3 bg-bg3 border-l-2 border-gold text-[0.76rem] text-foreground">
                 Ready to request a booking? Review a clean summary before sending it to the owner on WhatsApp.
               </div>
-              <Link to="/booking" onClick={() => setOpen(false)} className="btn-primary block text-center mt-2">Prepare Booking Summary</Link>
+              <button type="button" disabled={loading} onClick={() => send("Please prepare my booking summary from the details I have given you. Ask me for anything missing.", true)} className="btn-primary block text-center mt-2 disabled:opacity-50">Prepare Booking Summary</button>
               <a href="https://wa.me/27641236760" target="_blank" rel="noopener noreferrer" className="text-gold underline text-sm inline-block mt-2">Ask the owner directly on WhatsApp</a>
             </div>
           )}
@@ -166,6 +177,7 @@ export function ThandiChat() {
           className="p-3 border-t border-[oklch(0.76_0.13_85/0.15)] flex gap-2"
         >
           <input
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."

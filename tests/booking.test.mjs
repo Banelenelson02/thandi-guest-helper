@@ -37,3 +37,26 @@ test('WhatsApp handover encodes a clean request with surcharge and no confirmati
   assert.match(summary, /Late arrival\? #thanks/);
   assert.doesNotMatch(summary, /Email:|Lindo:/);
 });
+
+test('AI draft with missing fields cannot produce a sendable summary', async () => {
+  const { parseBookingDraft } = await import('../shared/booking.mjs');
+  const result = parseBookingDraft({ name: 'Test Guest', bookingType: 'night' }, today);
+  assert.equal(result.booking, null);
+  assert.ok(result.errors.phone);
+  assert.ok(result.errors.checkIn);
+});
+test('valid extracted draft strips extra fields and preserves group request', async () => {
+  const { parseBookingDraft } = await import('../shared/booking.mjs');
+  const result = parseBookingDraft({ ...booking, guests: '4', name: ' Test Guest ', paymentConfirmed: true }, today);
+  assert.deepEqual(result.errors, {});
+  assert.equal(result.booking.name, 'Test Guest');
+  assert.equal(result.booking.guests, '4');
+  assert.equal(result.booking.paymentConfirmed, undefined);
+});
+test('malformed AI field types are rejected rather than guessed', async () => {
+  const { parseBookingDraft } = await import('../shared/booking.mjs');
+  const result = parseBookingDraft({ ...booking, phone: 608111526, guests: { count: 2 } }, today);
+  assert.equal(result.booking, null);
+  assert.ok(result.errors.phone);
+  assert.ok(result.errors.guests);
+});
