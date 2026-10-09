@@ -1,5 +1,5 @@
 // Local copies of shared/*.mjs: the function bundler cannot reach files outside this folder.
-import { parseBookingDraft } from "./booking.mjs";
+import { parseBookingDraft, parseHandoverDraft } from "./booking.mjs";
 import { readLimitedBody, validateMessages } from "./chat.mjs";
 
 const allowedOrigins = (Deno.env.get("CHAT_ALLOWED_ORIGINS") || "").split(",").map((s) => s.trim()).filter(Boolean);
