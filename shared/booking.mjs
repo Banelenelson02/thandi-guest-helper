@@ -42,3 +42,34 @@ export function parseBookingDraft(raw, today = todaySA()) {
   const errors = validateBooking(data, today);
   return { booking: Object.keys(errors).length ? null : data, errors };
 }
+
+// Chat handover: phone and room are optional (owner confirms on WhatsApp). Form validation above is unchanged.
+const BASE = { day: 350, night: 450, short: 200, full: 625 };
+const BREAKFAST = { 'Healthy Breakfast': 70, 'Classic Breakfast': 90 };
+export function parseHandoverDraft(raw, today = todaySA()) {
+  const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'breakfastQty', 'notes'];
+  const data = Object.fromEntries(fields.map((key) => [key, typeof raw?.[key] === 'string' ? raw[key].trim() : '']));
+  const errors = validateBooking(data, today);
+  if (!data.phone) delete errors.phone;
+  if (!data.room) delete errors.room;
+  const hasBreakfast = Object.hasOwn(BREAKFAST, data.breakfast);
+  const qty = Number(data.breakfastQty);
+  if (hasBreakfast && !(Number.isInteger(qty) && qty >= 1 && qty <= 20)) errors.breakfastQty = 'Please tell me how many breakfasts you would like';
+  if (Object.keys(errors).length) return { summary: null, errors };
+  const nights = ['night', 'full'].includes(data.bookingType) ? Math.round((Date.parse(data.checkOut) - Date.parse(data.checkIn)) / 86400000) : 1;
+  const base = Object.hasOwn(BASE, data.bookingType) ? BASE[data.bookingType] * nights : null;
+  const addOn = hasBreakfast ? BREAKFAST[data.breakfast] * qty : 0;
+  const lines = [
+    `Name: ${data.name}`,
+    `Booking Type: ${TYPES[data.bookingType]}`,
+    `Arrival: ${data.checkIn}`,
+    `Departure: ${data.checkOut || 'Same day'}`,
+    `Guests: ${data.guests === '4' ? '4+' : data.guests}`,
+    ...(data.room ? [`Preferred room: ${data.room.replace('room-', 'Room ')}`] : []),
+    ...(data.phone ? [`WhatsApp: ${data.phone}`] : []),
+    `Add-ons: ${hasBreakfast ? `${qty}x ${data.breakfast} (R${BREAKFAST[data.breakfast]} each, R${addOn})` : 'None'}`,
+    `Estimated total: ${base === null ? 'Owner to confirm' : `R${base + addOn}`}`,
+    ...(data.notes ? [`Notes: ${data.notes.slice(0, 300)}`] : []),
+  ];
+  return { summary: lines.join('\n'), errors };
+}
