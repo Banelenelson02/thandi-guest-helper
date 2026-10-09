@@ -14,13 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_rate_limits: {
+        Row: {
+          bucket_key: string
+          expires_at: string
+          hits: number
+        }
+        Insert: {
+          bucket_key: string
+          expires_at: string
+          hits?: number
+        }
+        Update: {
+          bucket_key?: string
+          expires_at?: string
+          hits?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_chat_quota: { Args: { client_key: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
