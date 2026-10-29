@@ -23,6 +23,8 @@ export function ThandiChat() {
   const [showQuick, setShowQuick] = useState(true);
   const [showHandover, setShowHandover] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+  const [lastFailed, setLastFailed] = useState<{ text: string; prepareSummary: boolean } | null>(null);
+  const [retryRequest, setRetryRequest] = useState<{ text: string; prepareSummary: boolean } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [mounted, setMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,6 +36,13 @@ export function ThandiChat() {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, loading, summary]);
+
+  useEffect(() => {
+    if (!retryRequest) return;
+    const request = retryRequest;
+    setRetryRequest(null);
+    void send(request.text, request.prepareSummary);
+  }, [retryRequest, messages]);
 
   const time = () => new Date().toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
 
@@ -47,11 +56,13 @@ export function ThandiChat() {
     setMessages(next);
     setInput("");
     setLoading(true);
+    setLastFailed(null);
 
     try {
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
       const PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/thandi-chat`, {
+      // Retry one transient failure without duplicating the guest's message.
+      const requestChat = () => fetch(`${SUPABASE_URL}/functions/v1/thandi-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,6 +71,13 @@ export function ThandiChat() {
         body: JSON.stringify({ messages: next.slice(-24), action: prepareSummary ? "summary" : "chat" }),
         signal: AbortSignal.timeout(25000),
       });
+      let res: Response;
+      try {
+        res = await requestChat();
+        if ([502, 503, 504].includes(res.status)) res = await requestChat();
+      } catch {
+        res = await requestChat();
+      }
 
       if (res.status === 429) {
         setMessages([...next, { role: "assistant", content: "We're getting lots of messages right now. Please try again in a moment, or WhatsApp us on 064 123 6760. 🌟" }]);
@@ -79,9 +97,11 @@ export function ThandiChat() {
         setShowHandover(true);
       }
     } catch {
+      setLastFailed({ text: trimmed, prepareSummary });
+      // Keep the failed user message in history so they can retry without retyping.
       setMessages([
         ...next,
-        { role: "assistant", content: "I'm experiencing a small technical difficulty. Please WhatsApp us on 064 123 6760 — our team responds quickly! Warm regards, Lindo 🌟" },
+        { role: "assistant", content: "I'm having trouble connecting right now. Please tap Try again, or WhatsApp us on 064 123 6760. Warm regards, Lindo 🌟" },
       ]);
     } finally {
       setLoading(false);
@@ -147,6 +167,15 @@ export function ThandiChat() {
             </div>
           ))}
 
+          {lastFailed && !loading && (
+            <button type="button" className="btn-primary self-start" onClick={() => {
+              // Remove the failed exchange before resending to avoid duplicate context.
+              setMessages(messages.slice(0, -2));
+              // send() uses the current messages closure; defer sending to the next render.
+              setRetryRequest(lastFailed);
+              setLastFailed(null);
+            }}>Try again</button>
+          )}
           {loading && (
             <div className="flex gap-1 px-3 py-3 bg-bg3 border-l-2 border-gold w-fit self-start">
               <span className="w-1.5 h-1.5 rounded-full bg-gold opacity-50 animate-[typingPulse_1.2s_ease-in-out_infinite]" />
