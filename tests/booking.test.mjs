@@ -66,8 +66,8 @@ test('mixed breakfast choices show R610 and both types in WhatsApp', () => {
   const mixed = { ...booking, breakfast: 'none', healthyQty: '1', classicQty: '1' };
   assert.deepEqual(validateBooking(mixed, today), {});
   const summary = bookingSummary(mixed);
-  assert.match(summary, /1 Healthy Breakfast \\(R70\\)/);
-  assert.match(summary, /1 Classic Breakfast \\(R90\\)/);
+  assert.match(summary, /1 Healthy Breakfast \(R70\)/);
+  assert.match(summary, /1 Classic Breakfast \(R90\)/);
   assert.match(summary, /Estimated total: R610/);
   const whatsappMessage = new URL(whatsappUrl(mixed)).searchParams.get('text');
   assert.equal(whatsappMessage, summary);
