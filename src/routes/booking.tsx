@@ -34,6 +34,24 @@ function BookingPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [arrival, setArrival] = useState("");
   const [bookingType, setBookingType] = useState(search.type === "pool" ? "pool" : "");
+  const [guests, setGuests] = useState("1");
+  const [healthyQty, setHealthyQty] = useState(0);
+  const [classicQty, setClassicQty] = useState(0);
+  const overnight = ["night", "full"].includes(bookingType);
+  const breakfastCount = healthyQty + classicQty;
+  const maxBreakfasts = Number(guests);
+
+  function adjustBreakfast(kind: "healthy" | "classic", delta: number) {
+    const current = kind === "healthy" ? healthyQty : classicQty;
+    const next = current + delta;
+    if (!overnight || next < 0 || next > 20 || (delta > 0 && breakfastCount >= maxBreakfasts)) return;
+    if (kind === "healthy") setHealthyQty(next);
+    else setClassicQty(next);
+    setSummary("");
+    setWhatsapp("");
+    setStatus({ kind: "idle" });
+    setErrors((previous) => ({ ...previous, breakfastQty: "" }));
+  }
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -63,7 +81,13 @@ function BookingPage() {
             <Field label="Full Name" name="name" error={errors.name} required />
             <Field label="Phone / WhatsApp" name="phone" type="tel" placeholder="0xx xxx xxxx" error={errors.phone} required />
 
-            <SelectField label="Booking Type" name="bookingType" error={errors.bookingType} defaultValue={bookingType} onChange={setBookingType}>
+            <SelectField label="Booking Type" name="bookingType" error={errors.bookingType} defaultValue={bookingType} onChange={(value) => {
+              setBookingType(value);
+              if (!["night", "full"].includes(value)) {
+                setHealthyQty(0);
+                setClassicQty(0);
+              }
+            }}>
               <option value="">Select…</option>
               {BOOKING_TYPES.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -83,7 +107,7 @@ function BookingPage() {
               <option value="pool-only">Pool Access Only</option>
             </SelectField>
 
-            <SelectField label="Number of Guests" name="guests" defaultValue="1">
+            <SelectField label="Number of Guests" name="guests" defaultValue="1" onChange={setGuests}>
               <option value="1">1 Guest</option>
               <option value="2">2 Guests</option>
               <option value="3">3 Guests</option>
@@ -97,30 +121,70 @@ function BookingPage() {
               <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">
                 Breakfast Add-On (Available for Night & Full Day & Night Bookings)
               </label>
-              {["night", "full"].includes(bookingType) ? (
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {BREAKFAST_OPTIONS.map((b) => (
-                    <label key={b.name} className="flex flex-col gap-2 text-sm">
-                      {b.name} (R{b.price} each)
-                      <input type="number" min="0" max="20" step="1" defaultValue="0"
-                        name={b.name === "Healthy Breakfast" ? "healthyQty" : "classicQty"}
-                        className="bg-transparent border-b border-input text-foreground py-2" />
-                    </label>
-                  ))}
-                  {errors.breakfastQty && <p className="text-destructive text-sm sm:col-span-2">{errors.breakfastQty}</p>}
-                </div>
-              ) : <p className="text-sm text-muted-foreground">Select an overnight booking to add breakfast.</p>}
+              {!overnight && (
+                <p className="text-sm text-muted-foreground">Choose Night Booking or Full Day & Night to add breakfast.</p>
+              )}
+              {overnight && (
+                <>
+                  <input type="hidden" name="healthyQty" value={healthyQty} />
+                  <input type="hidden" name="classicQty" value={classicQty} />
+                  <p className="text-sm text-muted-foreground">Tap a breakfast to add it. You can choose different breakfasts for different guests.</p>
+                </>
+              )}
               <div className="grid sm:grid-cols-2 gap-3 mt-1">
-                {BREAKFAST_OPTIONS.map((b) => (
-                    <div key={b.name} className="text-[0.72rem] text-muted-foreground border border-border/60 p-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-foreground font-medium">{b.name}</span>
-                        <span className="text-gold font-display text-base">R{b.price}pp</span>
-                      </div>
-                      <span>{b.items.join(", ")}</span>
+                {BREAKFAST_OPTIONS.map((b) => {
+                  const kind = b.name === "Healthy Breakfast" ? "healthy" : "classic";
+                  const count = kind === "healthy" ? healthyQty : classicQty;
+                  const canAdd = overnight && breakfastCount < maxBreakfasts;
+                  return (
+                    <div key={b.name} className={`border p-3 transition-colors ${count > 0 ? "border-gold bg-gold/10" : "border-border/60"}`}>
+                      <button
+                        type="button"
+                        disabled={!canAdd}
+                        onClick={() => adjustBreakfast(kind, 1)}
+                        aria-label={`Add one ${b.name}`}
+                        className="block w-full text-left disabled:cursor-not-allowed"
+                      >
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="text-foreground font-medium text-sm">{b.name}</span>
+                          <span className="text-gold font-display text-base">R{b.price}pp</span>
+                        </span>
+                        <span className="block text-[0.72rem] text-muted-foreground mt-1">{b.items.join(", ")}</span>
+                        {overnight && <span className="block text-xs text-gold mt-3">{canAdd ? "Tap to add +" : "Maximum breakfasts selected"}</span>}
+                      </button>
+                      {overnight && (
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/60">
+                          <span className="text-xs text-muted-foreground">Quantity</span>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              aria-label={`Remove one ${b.name}`}
+                              disabled={count === 0}
+                              onClick={() => adjustBreakfast(kind, -1)}
+                              className="border border-border text-gold w-9 h-9 text-lg disabled:opacity-40"
+                            >−</button>
+                            <span className="text-sm text-foreground min-w-4 text-center" aria-live="polite">{count}</span>
+                            <button
+                              type="button"
+                              aria-label={`Add one ${b.name}`}
+                              disabled={!canAdd}
+                              onClick={() => adjustBreakfast(kind, 1)}
+                              className="border border-border text-gold w-9 h-9 text-lg disabled:opacity-40"
+                            >+</button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                ))}
+                  );
+                })}
               </div>
+              {overnight && (
+                <p className="text-xs text-muted-foreground">
+                  Selected {breakfastCount} of {maxBreakfasts} breakfasts.
+                  {breakfastCount > maxBreakfasts ? " Please remove breakfasts to match the guest count." : ""}
+                </p>
+              )}
+              {errors.breakfastQty && <p role="alert" className="text-destructive text-sm">{errors.breakfastQty}</p>}
               <p className="text-[0.65rem] text-muted-foreground">
                 Juice, tea, coffee or cappuccino is included. Hot chocolate costs an extra R11 per serving. Please order in advance.
               </p>

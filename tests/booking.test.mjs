@@ -60,3 +60,21 @@ test('malformed AI field types are rejected rather than guessed', async () => {
   assert.ok(result.errors.phone);
   assert.ok(result.errors.guests);
 });
+
+
+test('mixed breakfast choices show R610 and both types in WhatsApp', () => {
+  const mixed = { ...booking, breakfast: 'none', healthyQty: '1', classicQty: '1' };
+  assert.deepEqual(validateBooking(mixed, today), {});
+  const summary = bookingSummary(mixed);
+  assert.match(summary, /1 Healthy Breakfast \(R70\)/);
+  assert.match(summary, /1 Classic Breakfast \(R90\)/);
+  assert.match(summary, /Estimated total: R610/);
+  const whatsappMessage = new URL(whatsappUrl(mixed)).searchParams.get('text');
+  assert.equal(whatsappMessage, summary);
+});
+
+test('breakfast quantity cannot exceed guest count or be negative', () => {
+  for (const extra of [{ healthyQty: '2', classicQty: '1' }, { healthyQty: '-1', classicQty: '0' }]) {
+    assert.ok(validateBooking({ ...booking, ...extra }, today).breakfastQty);
+  }
+});
