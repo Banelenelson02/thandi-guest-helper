@@ -91,3 +91,16 @@ test('direct summary requests are recognized', async () => {
   assert.equal(wantsBookingSummary('chat', 'What drinks are available?'), false);
   assert.equal(wantsBookingSummary('chat', 'What is a booking summary?'), false);
 });
+
+test('Lindo does not convert boolean or malformed mixed quantities into bookings', async () => {
+  const { normalizeAiBookingDraft } = await import('../shared/booking.mjs');
+  for (const broken of [true, 'one']) {
+    const raw = {
+      ...banele, breakfast: '1 Healthy and 1 Classic',
+      healthyQty: broken, classicQty: '1'
+    };
+    const normalized = normalizeAiBookingDraft(raw);
+    assert.equal(normalized.breakfast, raw.breakfast);
+    assert.ok(parseHandoverDraft(normalized, today).errors.breakfast);
+  }
+});
