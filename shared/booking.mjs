@@ -82,6 +82,32 @@ export function bookingSummary(data) {
 }
 export function whatsappUrl(data) { return `https://wa.me/27641236760?text=${encodeURIComponent(bookingSummary(data))}`; }
 
+// AI can describe a mixed order in the legacy breakfast field while also
+// supplying valid per-type quantities. Quantities take precedence in that case.
+// Never infer quantities from prose or repair invalid numeric values.
+export function normalizeAiBookingDraft(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const booking = { ...raw };
+  const healthy = Number(booking.healthyQty ?? 0);
+  const classic = Number(booking.classicQty ?? 0);
+  const validCounts = Number.isInteger(healthy) && healthy >= 0 && healthy <= 20
+    && Number.isInteger(classic) && classic >= 0 && classic <= 20;
+  if (validCounts && healthy + classic > 0) {
+    booking.healthyQty = String(healthy);
+    booking.classicQty = String(classic);
+    booking.breakfast = 'none';
+  } else if (healthy + classic === 0
+      && ['Healthy Breakfast', 'Classic Breakfast'].includes(booking.breakfast)) {
+    const quantity = Number(booking.breakfastQty);
+    if (Number.isInteger(quantity) && quantity > 0 && quantity <= 20) {
+      booking.healthyQty = booking.breakfast === 'Healthy Breakfast' ? String(quantity) : '0';
+      booking.classicQty = booking.breakfast === 'Classic Breakfast' ? String(quantity) : '0';
+      booking.breakfast = 'none';
+    }
+  }
+  return booking;
+}
+
 export function parseBookingDraft(raw, today = todaySA()) {
   const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'healthyQty', 'classicQty', 'notes'];
   const data = Object.fromEntries(fields.map((key) => [key, typeof raw?.[key] === 'string' ? raw[key].trim() : '']));
