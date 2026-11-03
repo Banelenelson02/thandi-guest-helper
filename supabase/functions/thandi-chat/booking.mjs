@@ -17,10 +17,20 @@ export function validateBooking(data, today = todaySA()) {
   if (overnight && !data.checkOut) errors.checkOut = 'Please select a departure date for your overnight stay';
   if (data.checkOut && (!validDate(data.checkOut) || data.checkOut < data.checkIn || (overnight && data.checkOut === data.checkIn))) errors.checkOut = overnight ? 'Departure must be after arrival' : 'Departure cannot be before arrival';
   if (data.breakfast && !['none', 'Healthy Breakfast', 'Classic Breakfast'].includes(data.breakfast)) errors.breakfast = 'Please choose a breakfast option';
+  if (data.healthyQty !== undefined || data.classicQty !== undefined) {
+    const h = Number(data.healthyQty || 0), c = Number(data.classicQty || 0);
+    if (![h,c].every(n => Number.isInteger(n) && n >= 0 && n <= 20) || h + c > Number(data.guests)) errors.breakfastQty = 'Breakfast quantities must not exceed guest count';
+    if (h + c > 0 && !overnight) errors.breakfastQty = 'Breakfast is for overnight stays only';
+  }
   if (data.notes && (typeof data.notes !== 'string' || data.notes.length > 1000)) errors.notes = 'Notes must be under 1,000 characters';
   return errors;
 }
 export function bookingSummary(data) {
+  const mixed = data.healthyQty !== undefined || data.classicQty !== undefined;
+  const h = Number(data.healthyQty || 0), c = Number(data.classicQty || 0);
+  const nights = ['night','full'].includes(data.bookingType) ? Math.round((Date.parse(data.checkOut)-Date.parse(data.checkIn))/86400000) : 1;
+  const rate = { short: 200, day: 350, night: 450, full: 625 }[data.bookingType];
+  const breakfastText = mixed ? [h ? h + ' Healthy Breakfast (R' + (h*70) + ')' : '', c ? c + ' Classic Breakfast (R' + (c*90) + ')' : ''].filter(Boolean).join(', ') || 'None requested' : data.breakfast && data.breakfast !== 'none' ? data.breakfast + ' (price to be confirmed)' : 'None requested';
   return [
     'New booking request (not confirmed)',
     `Name: ${data.name.trim()}`, `WhatsApp: ${data.phone}`,
@@ -28,7 +38,8 @@ export function bookingSummary(data) {
     `Guests: ${String(data.guests) === '4' ? '4+' : data.guests}`,
     ...(Number(data.guests) > 2 && data.bookingType !== 'pool' ? ['Group request: please advise on rooms and the final price.'] : []),
     `Arrival: ${data.checkIn}`, `Departure: ${data.checkOut || 'Same day'}`,
-    `Breakfast: ${data.breakfast && data.breakfast !== 'none' ? data.breakfast + (data.breakfast === 'Healthy Breakfast' ? ' (R70 per person)' : ' (R90 per person)') : 'None requested'}`,
+    `Breakfast: ${breakfastText}`,
+    ...(mixed ? [`Estimated total: ${rate !== undefined && Number(data.guests) <= 2 ? 'R' + (rate*nights+h*70+c*90) : 'Owner to confirm'} (subject to owner confirmation)`] : []),
     'Hot chocolate, if requested: an extra R11 per serving.',
     ...(data.notes ? [`Notes: ${data.notes}`] : []),
     'Please confirm availability, room arrangements, the final price and payment details. The owner confirms the booking after payment.'
