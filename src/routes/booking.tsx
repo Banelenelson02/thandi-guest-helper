@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { todaySA, validateBooking, bookingSummary, whatsappUrl } from "../../shared/booking.mjs";
-import { ROOMS, BREAKFAST_OPTIONS, BOOKING_TYPES } from "@/data/rooms";
+import { ROOMS, BREAKFAST_OPTIONS, BOOKING_TYPES, BREAKFAST_DRINKS_INCLUDED, BREAKFAST_DRINK_SURCHARGE } from "@/data/rooms";
 
 type SearchParams = { room?: string; type?: string };
 
@@ -37,6 +37,11 @@ function BookingPage() {
   const [guests, setGuests] = useState("1");
   const [healthyQty, setHealthyQty] = useState(0);
   const [classicQty, setClassicQty] = useState(0);
+  const [healthyDrinks, setHealthyDrinks] = useState<string[]>([]);
+  const [classicDrinks, setClassicDrinks] = useState<string[]>([]);
+  const drinkOptions = [...BREAKFAST_DRINKS_INCLUDED, BREAKFAST_DRINK_SURCHARGE.name];
+  const hotChocolateCount = [...healthyDrinks, ...classicDrinks].filter((drink) => drink === BREAKFAST_DRINK_SURCHARGE.name).length;
+  const breakfastAddOn = healthyQty * 70 + classicQty * 90 + hotChocolateCount * BREAKFAST_DRINK_SURCHARGE.extra;
   const overnight = ["night", "full"].includes(bookingType);
   const breakfastCount = healthyQty + classicQty;
   const maxBreakfasts = Number(guests);
@@ -45,12 +50,27 @@ function BookingPage() {
     const current = kind === "healthy" ? healthyQty : classicQty;
     const next = current + delta;
     if (!overnight || next < 0 || next > 20 || (delta > 0 && breakfastCount >= maxBreakfasts)) return;
-    if (kind === "healthy") setHealthyQty(next);
-    else setClassicQty(next);
+    if (kind === "healthy") {
+      setHealthyQty(next);
+      setHealthyDrinks((previous) => delta > 0 ? [...previous, ""] : previous.slice(0, -1));
+    } else {
+      setClassicQty(next);
+      setClassicDrinks((previous) => delta > 0 ? [...previous, ""] : previous.slice(0, -1));
+    }
     setSummary("");
     setWhatsapp("");
     setStatus({ kind: "idle" });
-    setErrors((previous) => ({ ...previous, breakfastQty: "" }));
+    setErrors((previous) => ({ ...previous, breakfastQty: "", breakfastDrinks: "" }));
+  }
+
+  function selectDrink(kind: "healthy" | "classic", index: number, drink: string) {
+    if (!drinkOptions.includes(drink)) return;
+    const setDrinks = kind === "healthy" ? setHealthyDrinks : setClassicDrinks;
+    setDrinks((previous) => previous.map((selected, i) => i === index ? drink : selected));
+    setSummary("");
+    setWhatsapp("");
+    setStatus({ kind: "idle" });
+    setErrors((previous) => ({ ...previous, breakfastDrinks: "" }));
   }
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -86,6 +106,8 @@ function BookingPage() {
               if (!["night", "full"].includes(value)) {
                 setHealthyQty(0);
                 setClassicQty(0);
+                setHealthyDrinks([]);
+                setClassicDrinks([]);
               }
             }}>
               <option value="">Select…</option>
@@ -107,7 +129,18 @@ function BookingPage() {
               <option value="pool-only">Pool Access Only</option>
             </SelectField>
 
-            <SelectField label="Number of Guests" name="guests" defaultValue="1" onChange={setGuests}>
+            <SelectField label="Number of Guests" name="guests" defaultValue="1" onChange={(value) => {
+              setGuests(value);
+              const limit = Number(value);
+              if (healthyQty + classicQty > limit) {
+                const keepHealthy = Math.min(healthyQty, limit);
+                const keepClassic = Math.min(classicQty, limit - keepHealthy);
+                setHealthyQty(keepHealthy);
+                setClassicQty(keepClassic);
+                setHealthyDrinks((previous) => previous.slice(0, keepHealthy));
+                setClassicDrinks((previous) => previous.slice(0, keepClassic));
+              }
+            }}>
               <option value="1">1 Guest</option>
               <option value="2">2 Guests</option>
               <option value="3">3 Guests</option>
@@ -128,6 +161,7 @@ function BookingPage() {
                 <>
                   <input type="hidden" name="healthyQty" value={healthyQty} />
                   <input type="hidden" name="classicQty" value={classicQty} />
+                  <input type="hidden" name="breakfastDrinks" value={JSON.stringify({ healthy: healthyDrinks, classic: classicDrinks })} />
                   <p className="text-sm text-muted-foreground">Tap a breakfast to add it. You can choose different breakfasts for different guests.</p>
                 </>
               )}
@@ -174,6 +208,31 @@ function BookingPage() {
                           </div>
                         </div>
                       )}
+                      {overnight && count > 0 && (
+                        <div className="mt-4 space-y-4">
+                          {(kind === "healthy" ? healthyDrinks : classicDrinks).map((chosen, index) => (
+                            <fieldset key={index} className="border-t border-border/60 pt-3">
+                              <legend className="sr-only">Drink for {b.name} #{index + 1}</legend>
+                              <p className="text-xs text-foreground mb-2 font-medium">Drink for breakfast #{index + 1}</p>
+                              <div className="grid grid-cols-2 gap-2" role="group" aria-label={`Drink for ${b.name} #${index + 1}`}>
+                                {drinkOptions.map((drink) => (
+                                  <button
+                                    key={drink}
+                                    type="button"
+                                    aria-pressed={chosen === drink}
+                                    onClick={() => selectDrink(kind, index, drink)}
+                                    className={`text-left text-xs min-h-10 p-2 border transition-colors ${chosen === drink ? "border-gold bg-gold/20 text-gold" : "border-border/70 text-foreground hover:border-gold/60"}`}
+                                  >
+                                    {drink}
+                                    {drink === BREAKFAST_DRINK_SURCHARGE.name ? ` (+R${BREAKFAST_DRINK_SURCHARGE.extra})` : " · Included"}
+                                  </button>
+                                ))}
+                              </div>
+                              {!chosen && <p className="text-xs text-gold mt-2">Choose one drink for this breakfast.</p>}
+                            </fieldset>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -184,7 +243,14 @@ function BookingPage() {
                   {breakfastCount > maxBreakfasts ? " Please remove breakfasts to match the guest count." : ""}
                 </p>
               )}
+              {overnight && breakfastCount > 0 && (
+                <div className="border-t border-border/60 pt-3 text-sm text-foreground flex flex-wrap justify-between gap-2">
+                  <span>Breakfasts and drinks</span>
+                  <span className="font-medium text-gold">R{breakfastAddOn}{hotChocolateCount > 0 ? ` (includes R${hotChocolateCount * 11} for hot chocolate)` : ""}</span>
+                </div>
+              )}
               {errors.breakfastQty && <p role="alert" className="text-destructive text-sm">{errors.breakfastQty}</p>}
+              {errors.breakfastDrinks && <p role="alert" className="text-destructive text-sm">{errors.breakfastDrinks}</p>}
               <p className="text-[0.65rem] text-muted-foreground">
                 Juice, tea, coffee or cappuccino is included. Hot chocolate costs an extra R11 per serving. Please order in advance.
               </p>
