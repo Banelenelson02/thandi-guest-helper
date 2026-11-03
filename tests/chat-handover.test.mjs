@@ -62,3 +62,45 @@ test('Lindo structured booking parser preserves and validates individual drinks'
   assert.equal(invalid.booking, null);
   assert.ok(invalid.errors.breakfastDrinks);
 });
+
+test('mixed Lindo breakfast keeps two types when AI breakfast field is prose', async () => {
+  const { normalizeAiBookingDraft, parseBookingDraft } = await import('../shared/booking.mjs');
+  const raw = { ...banele, breakfast: 'one Healthy and one Classic',
+    healthyQty: '1', classicQty: '1', breakfastQty: '',
+    breakfastDrinks: { healthy: ['Hot Chocolate'], classic: ['Cappuccino'] } };
+  const booking = normalizeAiBookingDraft(raw);
+  assert.equal(booking.breakfast, 'none');
+  const draft = parseHandoverDraft(booking, today);
+  assert.deepEqual(draft.errors, {});
+  assert.match(draft.summary, /Estimated total: R796/);
+  assert.match(draft.summary, /Cappuccino/);
+  assert.deepEqual(parseBookingDraft({ ...booking, phone: '0608111526', room: 'room-2' }, today).errors, {});
+});
+
+test('invalid breakfast prose without quantities still fails validation', async () => {
+  const { normalizeAiBookingDraft } = await import('../shared/booking.mjs');
+  const raw = { ...banele, breakfast: 'one Healthy and one Classic', healthyQty: '', classicQty: '' };
+  assert.equal(parseHandoverDraft(normalizeAiBookingDraft(raw), today).errors.breakfast,
+    'Please choose a breakfast option');
+});
+
+test('direct summary requests are recognized', async () => {
+  const { wantsBookingSummary } = await import('../shared/chat.mjs');
+  assert.equal(wantsBookingSummary('chat', 'Please prepare my booking summary.'), true);
+  assert.equal(wantsBookingSummary('summary', 'Use my previous details.'), true);
+  assert.equal(wantsBookingSummary('chat', 'What drinks are available?'), false);
+  assert.equal(wantsBookingSummary('chat', 'What is a booking summary?'), false);
+});
+
+test('Lindo does not convert boolean or malformed mixed quantities into bookings', async () => {
+  const { normalizeAiBookingDraft } = await import('../shared/booking.mjs');
+  for (const broken of [true, 'one']) {
+    const raw = {
+      ...banele, breakfast: '1 Healthy and 1 Classic',
+      healthyQty: broken, classicQty: '1'
+    };
+    const normalized = normalizeAiBookingDraft(raw);
+    assert.equal(normalized.breakfast, raw.breakfast);
+    assert.ok(parseHandoverDraft(normalized, today).errors.breakfast);
+  }
+});

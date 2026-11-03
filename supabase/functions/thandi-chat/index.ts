@@ -1,6 +1,6 @@
 // Local copies of shared/*.mjs: the function bundler cannot reach files outside this folder.
-import { parseBookingDraft, parseHandoverDraft } from "./booking.mjs";
-import { readLimitedBody, validateMessages } from "./chat.mjs";
+import { parseBookingDraft, parseHandoverDraft, normalizeAiBookingDraft } from "./booking.mjs";
+import { readLimitedBody, validateMessages, wantsBookingSummary } from "./chat.mjs";
 
 const allowedOrigins = (Deno.env.get("CHAT_ALLOWED_ORIGINS") || "").split(",").map((s) => s.trim()).filter(Boolean);
 function corsHeaders(origin: string) {
@@ -87,6 +87,7 @@ Deno.serve(async (req: Request) => {
   catch (error) { return respond({ error: "invalid_request" }, error instanceof Error && error.message === "body_too_large" ? 413 : 400); }
   if (!body || !validateMessages(body.messages)) return respond({ error: "invalid_messages" }, 400);
   const messages = body.messages.map((message: { role: string; content: string }) => ({ role: message.role, content: message.content }));
+  const prepareSummary = wantsBookingSummary(body.action, messages.at(-1)?.content);
 
   try {
     if (!(await consumeQuota(req))) return respond({ error: "rate_limited" }, 429);
@@ -105,6 +106,7 @@ ROLE & PERSONALITY:
 Make every guest feel welcomed, safe, and well-informed. Embody Ubuntu — "I am because we are." Be professional, warm, and helpful with polite South African hospitality language. Use phrases like "Kind regards," "Warm welcome," or "You are most welcome."
 
 CURRENT CONTEXT:
+- Summary requested this turn: ${prepareSummary ? "yes" : "no"}. Never say a summary is ready unless the backend can validate all required details. The app will display the summary after validation.
 - Date: ${dateStr}
 - Time: ${timeStr} SAST
 - Greeting: ${greeting}
@@ -161,21 +163,10 @@ STRICT RULES:
     let extracted;
     try { extracted = JSON.parse(content); } catch { return respond({ error: "invalid_ai_response" }, 502); }
     if (!extracted || typeof extracted.reply !== "string") return respond({ error: "invalid_ai_response" }, 502);
-    if (body.action !== "summary") return respond({ reply: extracted.reply, booking: null, summaryVersion: 1 });
-    // Normalize a legacy single-type request to quantity-based breakfast ordering.
-    // Keep the provider's output untrusted and validate it before producing a summary.
-    const booking = extracted.booking && typeof extracted.booking === "object" && !Array.isArray(extracted.booking)
-      ? { ...extracted.booking } : {};
-    const healthyCount = Number(booking.healthyQty || 0);
-    const classicCount = Number(booking.classicQty || 0);
-    if (healthyCount + classicCount === 0 && ["Healthy Breakfast", "Classic Breakfast"].includes(booking.breakfast)) {
-      const count = Number(booking.breakfastQty);
-      if (Number.isInteger(count) && count > 0) {
-        booking.healthyQty = booking.breakfast === "Healthy Breakfast" ? String(count) : "0";
-        booking.classicQty = booking.breakfast === "Classic Breakfast" ? String(count) : "0";
-        booking.breakfast = "none";
-      }
-    }
+    if (!prepareSummary) return respond({ reply: extracted.reply, booking: null, summaryVersion: 1 });
+    // Never trust the AI's free-text breakfast field when valid separate
+    // quantities are present; normalize to the supported mixed-order schema.
+    const booking = normalizeAiBookingDraft(extracted.booking);
     const breakfastCount = Number(booking.healthyQty || 0) + Number(booking.classicQty || 0);
     if (breakfastCount > 0 && (booking.breakfastDrinks === undefined || booking.breakfastDrinks === null || booking.breakfastDrinks === "")) {
       return respond({ reply: "Which drink would you like with each breakfast? Juice, Tea, Coffee and Cappuccino are included. Hot Chocolate is an extra R11 each. Please choose one drink per breakfast so I can prepare the summary.", booking: null, summaryVersion: 1 });
@@ -183,13 +174,13 @@ STRICT RULES:
 
     // Full details (incl. phone + room) keep the structured summary.
     const draft = parseBookingDraft(booking);
-    if (draft.booking) return respond({ reply: extracted.reply, booking: draft.booking, summaryVersion: 1 });
+    if (draft.booking) return respond({ reply: "Your booking summary is ready below. Please review it, then open WhatsApp and press Send to share the request with the owner. The owner will confirm availability and payment details.", booking: draft.booking, summaryVersion: 1 });
     // Phone/room optional: return a server-built, validated labelled reply (no summaryVersion) for the frontend's legacy parser.
     const handover = parseHandoverDraft(booking);
     if (handover.summary) {
       return respond({ reply: `Here is your booking summary:\n${handover.summary}\n\nReview your booking summary, then open WhatsApp and press Send to share it with the owner. The owner will confirm availability and payment details.`, booking: null });
     }
-    return respond({ reply: `${extracted.reply}\n\nBefore I can prepare your summary: ${Object.values(handover.errors).join(". ")}. Please reply here with the missing or corrected details.`, booking: null, summaryVersion: 1 });
+    return respond({ reply: `I need to confirm a few details before preparing the summary: ${Object.values(handover.errors).join(". ")}. Please reply here with the missing or corrected details.`, booking: null, summaryVersion: 1 });
 
   } catch (e) {
     console.error("thandi-chat request failed");

@@ -24,3 +24,11 @@ export async function readLimitedBody(req, maxBytes = 24000) {
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
   return JSON.parse(new TextDecoder().decode(bytes));
 }
+
+/** A guest can request a summary in chat without pressing the summary button. */
+export function wantsBookingSummary(action, lastUserMessage) {
+  if (action === 'summary') return true;
+  if (typeof lastUserMessage !== 'string') return false;
+  return /\b(?:prepare|show|give|create|generate|make|see)\b.{0,60}\b(?:booking\s+)?summary\b/i.test(lastUserMessage)
+    || /\b(?:booking\s+)?summary\b.{0,40}\bplease\b/i.test(lastUserMessage);
+}
