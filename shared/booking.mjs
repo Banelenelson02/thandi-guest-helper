@@ -88,8 +88,14 @@ export function whatsappUrl(data) { return `https://wa.me/27641236760?text=${enc
 export function normalizeAiBookingDraft(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const booking = { ...raw };
-  const healthy = Number(booking.healthyQty ?? 0);
-  const classic = Number(booking.classicQty ?? 0);
+  const count = (value) => {
+    if (value === undefined || value === null || value === '') return 0;
+    if (typeof value === 'string' && /^\d{1,2}$/.test(value.trim())) return Number(value.trim());
+    if (typeof value === 'number' && Number.isInteger(value)) return value;
+    return NaN;
+  };
+  const healthy = count(booking.healthyQty);
+  const classic = count(booking.classicQty);
   const validCounts = Number.isInteger(healthy) && healthy >= 0 && healthy <= 20
     && Number.isInteger(classic) && classic >= 0 && classic <= 20;
   if (validCounts && healthy + classic > 0) {
