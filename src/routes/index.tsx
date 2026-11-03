@@ -43,8 +43,8 @@ function HomePage() {
 
         <div className="relative z-10 text-center px-4 animate-[fadeUp_1.4s_ease_forwards]">
           <div className="inline-flex items-center gap-2 bg-[oklch(0.76_0.13_85/0.12)] border border-[oklch(0.76_0.13_85/0.35)] px-5 py-2 mb-6">
-            <span className="text-gold text-sm">★★★★★</span>
-            <span className="text-[0.65rem] tracking-[0.15em]">4.9 · 26 Reviews on Google</span>
+            
+            <span className="text-[0.65rem] tracking-[0.15em]">Welcome to Cosy Corner Guest House</span>
           </div>
           <p className="text-[0.62rem] tracking-[0.45em] uppercase text-gold mb-5">
             ★ &nbsp; eMalahleni, Mpumalanga &nbsp; ★

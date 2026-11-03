@@ -16,7 +16,7 @@ export const Route = createFileRoute("/booking")({
             "Request your room or pool visit at Cosy Corner Guest House in eMalahleni. Day, night and full day bookings available.",
       },
       { property: "og:title", content: "Book Your Stay | Cosy Corner" },
-      { property: "og:description", content: "Request your room or pool visit online. Confirmation within hours." },
+      { property: "og:description", content: "Request your room or pool visit on WhatsApp. The owner confirms availability and payment details." },
     ],
   }),
   validateSearch: (s: Record<string, unknown>): SearchParams => ({
