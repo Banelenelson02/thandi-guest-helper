@@ -6,7 +6,7 @@ const labels = new Map([
   ['departure', 'Departure'], ['check-out', 'Departure'], ['check out', 'Departure'],
   ['guests', 'Guests'], ['number of guests', 'Guests'], ['booking type', 'Booking'], ['booking', 'Booking'],
   ['room', 'Preferred room'], ['preferred room', 'Preferred room'], ['phone', 'WhatsApp'], ['whatsapp', 'WhatsApp'],
-  ['add-ons', 'Add-ons'], ['addons', 'Add-ons'], ['breakfast', 'Breakfast'], ['total', 'Estimated total'],
+  ['add-ons', 'Add-ons'], ['addons', 'Add-ons'], ['breakfast', 'Breakfast'], ['drinks', 'Drinks'], ['hot chocolate surcharge', 'Hot chocolate surcharge'], ['total', 'Estimated total'],
   ['estimated total', 'Estimated total'], ['notes', 'Notes'], ['special requests', 'Notes'],
 ]);
 const deliveryPromise = /\b(?:i|we)(?:['’]ll|\s+will)\s+(?:ensure|make sure|send|forward|relay|submit|contact|reach out|follow up)|\b(?:request|message)\s+(?:will be|has been)\s+(?:sent|forwarded|submitted|relayed)|\b(?:first thing|tomorrow)\s+(?:in\s+)?the morning/i;
