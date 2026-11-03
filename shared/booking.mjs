@@ -85,6 +85,12 @@ export function whatsappUrl(data) { return `https://wa.me/27641236760?text=${enc
 export function parseBookingDraft(raw, today = todaySA()) {
   const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'healthyQty', 'classicQty', 'notes'];
   const data = Object.fromEntries(fields.map((key) => [key, typeof raw?.[key] === 'string' ? raw[key].trim() : '']));
+  // Chat drafts can provide a structured drink object. The public booking form
+  // already sends its drink selections as JSON text.
+  if (raw?.breakfastDrinks !== undefined && raw.breakfastDrinks !== '') {
+    data.breakfastDrinks = typeof raw.breakfastDrinks === 'string'
+      ? raw.breakfastDrinks.trim() : JSON.stringify(raw.breakfastDrinks);
+  }
   const errors = validateBooking(data, today);
   return { booking: Object.keys(errors).length ? null : data, errors };
 }
@@ -95,6 +101,10 @@ const BREAKFAST = { 'Healthy Breakfast': 70, 'Classic Breakfast': 90 };
 export function parseHandoverDraft(raw, today = todaySA()) {
   const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'breakfastQty', 'healthyQty', 'classicQty', 'notes'];
   const data = Object.fromEntries(fields.map((key) => [key, typeof raw?.[key] === 'string' ? raw[key].trim() : '']));
+  if (raw?.breakfastDrinks !== undefined && raw.breakfastDrinks !== '') {
+    data.breakfastDrinks = typeof raw.breakfastDrinks === 'string'
+      ? raw.breakfastDrinks.trim() : JSON.stringify(raw.breakfastDrinks);
+  }
   const errors = validateBooking(data, today);
   if (!data.phone) delete errors.phone;
   if (!data.room) delete errors.room;
@@ -107,6 +117,15 @@ export function parseHandoverDraft(raw, today = todaySA()) {
   const nights = ['night', 'full'].includes(data.bookingType) ? Math.round((Date.parse(data.checkOut) - Date.parse(data.checkIn)) / 86400000) : 1;
   const base = Object.hasOwn(BASE, data.bookingType) ? BASE[data.bookingType] * nights : null;
   const addOn = hasMixed ? h * 70 + c * 90 : hasBreakfast ? BREAKFAST[data.breakfast] * qty : 0;
+  const drinkSelections = data.breakfastDrinks ? readBreakfastDrinks(data.breakfastDrinks) : null;
+  const drinkNames = drinkSelections ? [
+    ...drinkSelections.healthy.map((drink, i) => `Healthy Breakfast #${i + 1}: ${drink}`),
+    ...drinkSelections.classic.map((drink, i) => `Classic Breakfast #${i + 1}: ${drink}`)
+  ] : [];
+  const chocolateCount = drinkSelections
+    ? [...drinkSelections.healthy, ...drinkSelections.classic].filter((drink) => drink === HOT_CHOCOLATE).length
+    : 0;
+  const surcharge = chocolateCount * 11;
   const addOnText = hasMixed
     ? [h ? `${h}x Healthy Breakfast (R${h * 70})` : '', c ? `${c}x Classic Breakfast (R${c * 90})` : ''].filter(Boolean).join(', ')
     : hasBreakfast ? `${qty}x ${data.breakfast} (R${BREAKFAST[data.breakfast]} each, R${addOn})` : 'None';
@@ -119,7 +138,9 @@ export function parseHandoverDraft(raw, today = todaySA()) {
     ...(data.room ? [`Preferred room: ${data.room.replace('room-', 'Room ')}`] : []),
     ...(data.phone ? [`WhatsApp: ${data.phone}`] : []),
     `Add-ons: ${addOnText}`,
-    `Estimated total: ${base === null ? 'Owner to confirm' : `R${base + addOn}`}`,
+    ...(drinkNames.length ? [`Drinks: ${drinkNames.join('; ')}`] : []),
+    ...(surcharge ? [`Hot chocolate surcharge: R${surcharge}`] : []),
+    `Estimated total: ${base === null || Number(data.guests) > 2 ? 'Owner to confirm' : `R${base + addOn + surcharge}`}`,
     ...(data.notes ? [`Notes: ${data.notes.slice(0, 300)}`] : []),
   ];
   return { summary: lines.join('\n'), errors };
