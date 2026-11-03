@@ -78,3 +78,48 @@ test('breakfast quantity cannot exceed guest count or be negative', () => {
     assert.ok(validateBooking({ ...booking, ...extra }, today).breakfastQty);
   }
 });
+
+test('a hot chocolate adds R11 and lists each chosen drink in WhatsApp', () => {
+  const request = { ...booking, breakfast: 'none', healthyQty: '1', classicQty: '1',
+    breakfastDrinks: JSON.stringify({ healthy: ['Juice'], classic: ['Hot Chocolate'] }) };
+  assert.deepEqual(validateBooking(request, today), {});
+  const summary = bookingSummary(request);
+  assert.ok(summary.includes('Healthy Breakfast #1: Juice'));
+  assert.ok(summary.includes('Classic Breakfast #1: Hot Chocolate'));
+  assert.ok(summary.includes('Hot chocolate surcharge: R11'));
+  assert.ok(summary.includes('Estimated total: R621'));
+  assert.equal(new URL(whatsappUrl(request)).searchParams.get('text'), summary);
+});
+
+test('included drinks do not add to the mixed breakfast total', () => {
+  const request = { ...booking, breakfast: 'none', healthyQty: '1', classicQty: '1',
+    breakfastDrinks: JSON.stringify({ healthy: ['Tea'], classic: ['Cappuccino'] }) };
+  assert.deepEqual(validateBooking(request, today), {});
+  const summary = bookingSummary(request);
+  assert.ok(summary.includes('Estimated total: R610'));
+  assert.ok(!summary.includes('Hot chocolate surcharge:'));
+});
+
+test('two breakfasts of the same kind can have different drinks', () => {
+  const request = { ...booking, breakfast: 'none', healthyQty: '2', classicQty: '0',
+    breakfastDrinks: JSON.stringify({ healthy: ['Hot Chocolate', 'Coffee'], classic: [] }) };
+  assert.deepEqual(validateBooking(request, today), {});
+  const summary = bookingSummary(request);
+  assert.ok(summary.includes('Healthy Breakfast #1: Hot Chocolate'));
+  assert.ok(summary.includes('Healthy Breakfast #2: Coffee'));
+  assert.ok(summary.includes('Estimated total: R601'));
+});
+
+test('drink choices must be complete, valid and match breakfast quantities', () => {
+  const base = { ...booking, breakfast: 'none', healthyQty: '1', classicQty: '1' };
+  for (const bad of [
+    '{"healthy":[""],"classic":["Tea"]}',
+    '{"healthy":["Juice"],"classic":[]}',
+    '{"healthy":["Wine"],"classic":["Tea"]}',
+    'not json',
+    '{"healthy":["Juice"],"classic":["Tea","Coffee"]}',
+    '{"healthy":"Juice","classic":["Tea"]}'
+  ]) assert.ok(validateBooking({ ...base, breakfastDrinks: bad }, today).breakfastDrinks);
+  assert.deepEqual(validateBooking({ ...base, healthyQty: '0', classicQty: '0',
+    breakfastDrinks: '{"healthy":[],"classic":[]}' }, today), {});
+});
