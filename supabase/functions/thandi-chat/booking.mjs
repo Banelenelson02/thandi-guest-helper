@@ -26,8 +26,8 @@ export function validateBooking(data, today = todaySA()) {
   return errors;
 }
 export function bookingSummary(data) {
-  const mixed = data.healthyQty !== undefined || data.classicQty !== undefined;
   const h = Number(data.healthyQty || 0), c = Number(data.classicQty || 0);
+  const mixed = h + c > 0 || ((data.healthyQty !== undefined || data.classicQty !== undefined) && (!data.breakfast || data.breakfast === 'none'));
   const nights = ['night','full'].includes(data.bookingType) ? Math.round((Date.parse(data.checkOut)-Date.parse(data.checkIn))/86400000) : 1;
   const rate = { short: 200, day: 350, night: 450, full: 625 }[data.bookingType];
   const breakfastText = mixed ? [h ? h + ' Healthy Breakfast (R' + (h*70) + ')' : '', c ? c + ' Classic Breakfast (R' + (c*90) + ')' : ''].filter(Boolean).join(', ') || 'None requested' : data.breakfast && data.breakfast !== 'none' ? data.breakfast + ' (price to be confirmed)' : 'None requested';
@@ -48,7 +48,7 @@ export function bookingSummary(data) {
 export function whatsappUrl(data) { return `https://wa.me/27641236760?text=${encodeURIComponent(bookingSummary(data))}`; }
 
 export function parseBookingDraft(raw, today = todaySA()) {
-  const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'notes'];
+  const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'healthyQty', 'classicQty', 'notes'];
   const data = Object.fromEntries(fields.map((key) => [key, typeof raw?.[key] === 'string' ? raw[key].trim() : '']));
   const errors = validateBooking(data, today);
   return { booking: Object.keys(errors).length ? null : data, errors };
@@ -58,18 +58,23 @@ export function parseBookingDraft(raw, today = todaySA()) {
 const BASE = { day: 350, night: 450, short: 200, full: 625 };
 const BREAKFAST = { 'Healthy Breakfast': 70, 'Classic Breakfast': 90 };
 export function parseHandoverDraft(raw, today = todaySA()) {
-  const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'breakfastQty', 'notes'];
+  const fields = ['name', 'phone', 'bookingType', 'room', 'guests', 'checkIn', 'checkOut', 'breakfast', 'breakfastQty', 'healthyQty', 'classicQty', 'notes'];
   const data = Object.fromEntries(fields.map((key) => [key, typeof raw?.[key] === 'string' ? raw[key].trim() : '']));
   const errors = validateBooking(data, today);
   if (!data.phone) delete errors.phone;
   if (!data.room) delete errors.room;
-  const hasBreakfast = Object.hasOwn(BREAKFAST, data.breakfast);
+  const h = Number(data.healthyQty || 0), c = Number(data.classicQty || 0);
+  const hasMixed = h + c > 0;
+  const hasBreakfast = !hasMixed && Object.hasOwn(BREAKFAST, data.breakfast);
   const qty = Number(data.breakfastQty);
   if (hasBreakfast && !(Number.isInteger(qty) && qty >= 1 && qty <= 20)) errors.breakfastQty = 'Please tell me how many breakfasts you would like';
   if (Object.keys(errors).length) return { summary: null, errors };
   const nights = ['night', 'full'].includes(data.bookingType) ? Math.round((Date.parse(data.checkOut) - Date.parse(data.checkIn)) / 86400000) : 1;
   const base = Object.hasOwn(BASE, data.bookingType) ? BASE[data.bookingType] * nights : null;
-  const addOn = hasBreakfast ? BREAKFAST[data.breakfast] * qty : 0;
+  const addOn = hasMixed ? h * 70 + c * 90 : hasBreakfast ? BREAKFAST[data.breakfast] * qty : 0;
+  const addOnText = hasMixed
+    ? [h ? `${h}x Healthy Breakfast (R${h * 70})` : '', c ? `${c}x Classic Breakfast (R${c * 90})` : ''].filter(Boolean).join(', ')
+    : hasBreakfast ? `${qty}x ${data.breakfast} (R${BREAKFAST[data.breakfast]} each, R${addOn})` : 'None';
   const lines = [
     `Name: ${data.name}`,
     `Booking Type: ${TYPES[data.bookingType]}`,
@@ -78,7 +83,7 @@ export function parseHandoverDraft(raw, today = todaySA()) {
     `Guests: ${data.guests === '4' ? '4+' : data.guests}`,
     ...(data.room ? [`Preferred room: ${data.room.replace('room-', 'Room ')}`] : []),
     ...(data.phone ? [`WhatsApp: ${data.phone}`] : []),
-    `Add-ons: ${hasBreakfast ? `${qty}x ${data.breakfast} (R${BREAKFAST[data.breakfast]} each, R${addOn})` : 'None'}`,
+    `Add-ons: ${addOnText}`,
     `Estimated total: ${base === null ? 'Owner to confirm' : `R${base + addOn}`}`,
     ...(data.notes ? [`Notes: ${data.notes.slice(0, 300)}`] : []),
   ];
