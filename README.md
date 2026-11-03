@@ -64,3 +64,7 @@ GitHub Actions runs these checks on pushes and pull requests and checks the Deno
 4. Verify successful chat, invalid requests, limits and a simulated AI outage in the target Supabase project.
 5. Confirm business facts and review attribution with the owner. Testimonials mentioning unavailable treatments have been removed rather than rewritten.
 6. Publish the website and verify the pool and privacy routes. The former treatments page is now `/pool`.
+
+## Lovable sync and Vercel deployment
+
+The production website is deployed from GitHub `main` to Vercel. Lovable's project editor also syncs the connected `main` branch, but incoming GitHub commits do not automatically deploy the Lovable Cloud/Supabase Edge Function or apply database migrations. Check the Lovable Git sync status before making editor changes, and deploy/test `thandi-chat` separately before relying on new concierge behavior.
