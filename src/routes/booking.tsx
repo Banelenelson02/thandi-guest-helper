@@ -97,18 +97,19 @@ function BookingPage() {
               <label className="text-[0.58rem] tracking-[0.25em] uppercase text-gold">
                 Breakfast Add-On (Available for Night & Full Day & Night Bookings)
               </label>
-              <select
-                  name="breakfast"
-                  defaultValue="none"
-                  className="bg-transparent border-b border-input text-foreground py-3 outline-none focus:border-gold transition-colors text-[0.8rem]"
-              >
-                <option value="none">No breakfast, thanks</option>
-                {BREAKFAST_OPTIONS.map((b) => (
-                    <option key={b.name} value={b.name}>
-                      {b.name} — R{b.price}pp
-                    </option>
-                ))}
-              </select>
+              {["night", "full"].includes(bookingType) ? (
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {BREAKFAST_OPTIONS.map((b) => (
+                    <label key={b.name} className="flex flex-col gap-2 text-sm">
+                      {b.name} (R{b.price} each)
+                      <input type="number" min="0" max="20" step="1" defaultValue="0"
+                        name={b.name === "Healthy Breakfast" ? "healthyQty" : "classicQty"}
+                        className="bg-transparent border-b border-input text-foreground py-2" />
+                    </label>
+                  ))}
+                  {errors.breakfastQty && <p className="text-destructive text-sm sm:col-span-2">{errors.breakfastQty}</p>}
+                </div>
+              ) : <p className="text-sm text-muted-foreground">Select an overnight booking to add breakfast.</p>}
               <div className="grid sm:grid-cols-2 gap-3 mt-1">
                 {BREAKFAST_OPTIONS.map((b) => (
                     <div key={b.name} className="text-[0.72rem] text-muted-foreground border border-border/60 p-3">
