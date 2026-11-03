@@ -30,7 +30,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Luxury guest house in Hlalanikahle, eMalahleni. Comfortable rooms, a swimming pool and warm South African hospitality.",
+          "Comfortable guest house in Hlalanikahle, eMalahleni, with five rooms, a swimming pool and welcoming South African hospitality.",
       },
       { name: "author", content: "Cosy Corner Guest House" },
       { property: "og:type", content: "website" },
