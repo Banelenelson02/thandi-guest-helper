@@ -1,17 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { GOOGLE_RATING, GOOGLE_REVIEW_COUNT, GOOGLE_REVIEWS_URL } from "@/data/googleReviews";
 
 export const Route = createFileRoute("/reviews")({
   head: () => ({
     meta: [
-      { title: "Guest Reviews | Cosy Corner Guest House" },
+      { title: "Google Reviews | Cosy Corner Guest House" },
       {
         name: "description",
-        content: "Guest feedback and contact information for Cosy Corner Guest House in eMalahleni.",
+        content: "See Cosy Corner Guest House guest reviews on Google Maps.",
       },
-      { property: "og:title", content: "Guest Reviews | Cosy Corner" },
+      { property: "og:title", content: "Google Reviews | Cosy Corner" },
       {
         property: "og:description",
-        content: "Ask the guest house about guest feedback and experiences.",
+        content: "Find the latest guest feedback for Cosy Corner Guest House on Google.",
       },
     ],
   }),
@@ -23,22 +24,31 @@ function ReviewsPage() {
     <section className="py-24 px-6">
       <div className="max-w-3xl mx-auto text-center">
         <p className="section-tag">Guest Experiences</p>
-        <h1 className="section-title mb-6">
+        <h1 className="section-title mb-8">
           Guest <em>Reviews</em>
         </h1>
-        <p className="text-muted-foreground leading-[2] text-[0.83rem] mb-8">
-          We're keeping this page available for guest feedback that the guest house can confirm
-          and has permission to share. For questions about the rooms, facilities or recent
-          guest experiences, you're welcome to ask the owner directly.
+        <div className="flex items-center justify-center gap-3 flex-wrap mb-5">
+          <span className="text-gold text-3xl" aria-hidden="true">★</span>
+          <span className="font-display text-6xl text-gold">{GOOGLE_RATING}</span>
+          <span className="text-[0.72rem] tracking-[0.14em] uppercase text-muted-foreground">
+            / 5.0 · {GOOGLE_REVIEW_COUNT} Google reviews
+          </span>
+        </div>
+        <p className="text-muted-foreground leading-[2] text-[0.83rem] max-w-xl mx-auto mb-8">
+          Read guest experiences directly on our Google Maps business listing.
+          Ratings and review totals may change as guests leave new feedback.
         </p>
         <a
-          href="https://wa.me/27641236760"
+          href={GOOGLE_REVIEWS_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="btn-primary inline-block"
         >
-          Ask the Owner on WhatsApp
+          View All Reviews on Google
         </a>
+        <p className="mt-4 text-[0.7rem] text-muted-foreground">
+          Opens Google Maps. Tap Reviews on the business listing to read all feedback.
+        </p>
       </div>
     </section>
   );
