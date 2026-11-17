@@ -1,17 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const REVIEWS = [{ text: "Exceptional service from the moment we arrived. Smart TV in every room was a lovely touch. The staff are warm and professional. Highly recommend!", name: "Michael D. — Pretoria" }];
-
 export const Route = createFileRoute("/reviews")({
   head: () => ({
     meta: [
-      { title: "Guest Reviews | Cosy Corner Guest House — 4.9★" },
+      { title: "Guest Reviews | Cosy Corner Guest House" },
       {
         name: "description",
-        content: "Read what our guests say about Cosy Corner Guest House. Rated 4.9★ on Google with 26+ reviews.",
+        content: "Guest feedback and contact information for Cosy Corner Guest House in eMalahleni.",
       },
       { property: "og:title", content: "Guest Reviews | Cosy Corner" },
-      { property: "og:description", content: "4.9★ rating on Google. Hear what our guests say about their stay." },
+      {
+        property: "og:description",
+        content: "Ask the guest house about guest feedback and experiences.",
+      },
     ],
   }),
   component: ReviewsPage,
@@ -20,31 +21,24 @@ export const Route = createFileRoute("/reviews")({
 function ReviewsPage() {
   return (
     <section className="py-24 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14">
-          <p className="section-tag">Guest Experiences</p>
-          <h1 className="section-title">
-            What Our <em>Guests Say</em>
-          </h1>
-          <div className="flex items-center justify-center gap-4 mt-5">
-            <span className="text-gold text-xl">★★★★★</span>
-            <span className="font-display text-5xl text-gold">4.9</span>
-            <span className="text-[0.72rem] tracking-[0.2em] uppercase text-muted-foreground">/ 5.0 · 26 Reviews</span>
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {REVIEWS.map((r, i) => (
-            <article
-              key={i}
-              className="p-7 bg-bg3 border border-[oklch(0.76_0.13_85/0.08)] hover:border-[oklch(0.76_0.13_85/0.3)] transition-colors"
-            >
-              <div className="font-display text-5xl text-gold opacity-30 leading-none">"</div>
-              <p className="text-[0.78rem] text-muted-foreground leading-[1.8] my-3">{r.text}</p>
-              <p className="text-[0.62rem] tracking-[0.2em] uppercase text-gold">{r.name}</p>
-            </article>
-          ))}
-        </div>
+      <div className="max-w-3xl mx-auto text-center">
+        <p className="section-tag">Guest Experiences</p>
+        <h1 className="section-title mb-6">
+          Guest <em>Reviews</em>
+        </h1>
+        <p className="text-muted-foreground leading-[2] text-[0.83rem] mb-8">
+          We're keeping this page available for guest feedback that the guest house can confirm
+          and has permission to share. For questions about the rooms, facilities or recent
+          guest experiences, you're welcome to ask the owner directly.
+        </p>
+        <a
+          href="https://wa.me/27641236760"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary inline-block"
+        >
+          Ask the Owner on WhatsApp
+        </a>
       </div>
     </section>
   );
