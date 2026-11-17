@@ -1,17 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-const REVIEWS = [{ text: "Exceptional service from the moment we arrived. Smart TV in every room was a lovely touch. The staff are warm and professional. Highly recommend!", name: "Michael D. — Pretoria" }];
+import { GOOGLE_RATING, GOOGLE_REVIEW_COUNT, GOOGLE_REVIEWS_URL } from "@/data/googleReviews";
 
 export const Route = createFileRoute("/reviews")({
   head: () => ({
     meta: [
-      { title: "Guest Reviews | Cosy Corner Guest House — 4.9★" },
+      { title: "Google Reviews | Cosy Corner Guest House" },
       {
         name: "description",
-        content: "Read what our guests say about Cosy Corner Guest House. Rated 4.9★ on Google with 26+ reviews.",
+        content: "See Cosy Corner Guest House guest reviews on Google Maps.",
       },
-      { property: "og:title", content: "Guest Reviews | Cosy Corner" },
-      { property: "og:description", content: "4.9★ rating on Google. Hear what our guests say about their stay." },
+      { property: "og:title", content: "Google Reviews | Cosy Corner" },
+      {
+        property: "og:description",
+        content: "Find the latest guest feedback for Cosy Corner Guest House on Google.",
+      },
     ],
   }),
   component: ReviewsPage,
@@ -20,31 +22,33 @@ export const Route = createFileRoute("/reviews")({
 function ReviewsPage() {
   return (
     <section className="py-24 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-14">
-          <p className="section-tag">Guest Experiences</p>
-          <h1 className="section-title">
-            What Our <em>Guests Say</em>
-          </h1>
-          <div className="flex items-center justify-center gap-4 mt-5">
-            <span className="text-gold text-xl">★★★★★</span>
-            <span className="font-display text-5xl text-gold">4.9</span>
-            <span className="text-[0.72rem] tracking-[0.2em] uppercase text-muted-foreground">/ 5.0 · 26 Reviews</span>
-          </div>
+      <div className="max-w-3xl mx-auto text-center">
+        <p className="section-tag">Guest Experiences</p>
+        <h1 className="section-title mb-8">
+          Guest <em>Reviews</em>
+        </h1>
+        <div className="flex items-center justify-center gap-3 flex-wrap mb-5">
+          <span className="text-gold text-3xl" aria-hidden="true">★</span>
+          <span className="font-display text-6xl text-gold">{GOOGLE_RATING}</span>
+          <span className="text-[0.72rem] tracking-[0.14em] uppercase text-muted-foreground">
+            / 5.0 · {GOOGLE_REVIEW_COUNT} Google reviews
+          </span>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {REVIEWS.map((r, i) => (
-            <article
-              key={i}
-              className="p-7 bg-bg3 border border-[oklch(0.76_0.13_85/0.08)] hover:border-[oklch(0.76_0.13_85/0.3)] transition-colors"
-            >
-              <div className="font-display text-5xl text-gold opacity-30 leading-none">"</div>
-              <p className="text-[0.78rem] text-muted-foreground leading-[1.8] my-3">{r.text}</p>
-              <p className="text-[0.62rem] tracking-[0.2em] uppercase text-gold">{r.name}</p>
-            </article>
-          ))}
-        </div>
+        <p className="text-muted-foreground leading-[2] text-[0.83rem] max-w-xl mx-auto mb-8">
+          Read guest experiences directly on our Google Maps business listing.
+          Ratings and review totals may change as guests leave new feedback.
+        </p>
+        <a
+          href={GOOGLE_REVIEWS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary inline-block"
+        >
+          View All Reviews on Google
+        </a>
+        <p className="mt-4 text-[0.7rem] text-muted-foreground">
+          Opens Google Maps. Tap Reviews on the business listing to read all feedback.
+        </p>
       </div>
     </section>
   );

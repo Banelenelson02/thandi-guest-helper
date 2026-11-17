@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import aboutImg from "@/assets/rooms/inside-hall/inside-hall-1.jpg";
+import { GOOGLE_RATING, GOOGLE_REVIEWS_URL } from "@/data/googleReviews";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -54,8 +55,8 @@ function AboutPage() {
 
             <div className="grid grid-cols-3 gap-5 mt-10 pt-10 border-t border-border">
               <div>
-                <div className="font-display text-4xl text-gold">4.9★</div>
-                <div className="text-[0.62rem] tracking-[0.2em] text-muted-foreground uppercase mt-1">Guest Rating</div>
+                <div className="font-display text-4xl text-gold">{GOOGLE_RATING}★</div>
+                <div className="text-[0.62rem] tracking-[0.2em] text-muted-foreground uppercase mt-1">Google Rating</div>
               </div>
               <div>
                 <div className="font-display text-4xl text-gold">5</div>
@@ -67,8 +68,16 @@ function AboutPage() {
               </div>
             </div>
 
-            <div className="mt-10">
+            <div className="mt-10 flex flex-wrap items-center gap-5">
               <Link to="/rooms" className="btn-primary">See Rooms & Prices</Link>
+              <a
+                href={GOOGLE_REVIEWS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gold underline text-sm"
+              >
+                View All Reviews on Google
+              </a>
             </div>
           </div>
         </div>
