@@ -54,8 +54,8 @@ function AboutPage() {
 
             <div className="grid grid-cols-3 gap-5 mt-10 pt-10 border-t border-border">
               <div>
-                <div className="font-display text-4xl text-gold">4.9★</div>
-                <div className="text-[0.62rem] tracking-[0.2em] text-muted-foreground uppercase mt-1">Guest Rating</div>
+                <div className="font-display text-4xl text-gold">1</div>
+                <div className="text-[0.62rem] tracking-[0.2em] text-muted-foreground uppercase mt-1">Swimming Pool</div>
               </div>
               <div>
                 <div className="font-display text-4xl text-gold">5</div>
