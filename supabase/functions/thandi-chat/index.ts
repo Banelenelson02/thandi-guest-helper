@@ -66,7 +66,7 @@ const FACT_SHEET = `GUESTHOUSE FACT SHEET:
   • Guests must respect other visitors and maintain a peaceful environment
   • Bookings are only confirmed after payment is received
 - Only describe the rooms, pool and grounds listed above. Do not advertise additional treatments or services.
-- Google Rating: 4.9 stars (26 reviews)`;
+- Reviews: Do not quote numerical review ratings or counts unless the owner has supplied current verified figures.`;
 
 function getGreeting(hour: number) {
   if (hour < 12) return "Good morning";
