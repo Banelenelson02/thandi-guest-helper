@@ -65,6 +65,12 @@ GitHub Actions runs these checks on pushes and pull requests and checks the Deno
 5. Confirm business facts and review attribution with the owner. Testimonials mentioning unavailable treatments have been removed rather than rewritten.
 6. Publish the website and verify the pool and privacy routes. The former treatments page is now `/pool`.
 
+## Netlify deployment
+
+The root `netlify.toml` defines the Bun build command, Node.js 24 and the Nitro `netlify` preset. The Netlify preset writes public assets to `dist` and generates the server-rendering function in `.netlify/functions-internal`. Publish `dist`; publishing only `dist/client` does not match this adapter's output. No single-page-app catch-all redirect is needed because the generated function handles page requests.
+
+If a deploy fails during dependency installation, inspect the log after `Installing dependencies` for the actual package-manager error. A log ending at that line does not identify a failed dependency or build error.
+
 ## Lovable sync and Vercel deployment
 
 The production website is deployed from GitHub `main` to Vercel. Lovable's project editor also syncs the connected `main` branch, but incoming GitHub commits do not automatically deploy the Lovable Cloud/Supabase Edge Function or apply database migrations. Check the Lovable Git sync status before making editor changes, and deploy/test `thandi-chat` separately before relying on new concierge behavior.
