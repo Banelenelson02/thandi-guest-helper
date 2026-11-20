@@ -2,7 +2,8 @@
 import { parseBookingDraft, parseHandoverDraft, normalizeAiBookingDraft } from "./booking.mjs";
 import { readLimitedBody, validateMessages, wantsBookingSummary } from "./chat.mjs";
 
-const allowedOrigins = (Deno.env.get("CHAT_ALLOWED_ORIGINS") || "").split(",").map((s) => s.trim()).filter(Boolean);
+const OFFICIAL_ORIGINS = ["https://cosycornerguesthouse.co.za", "https://www.cosycornerguesthouse.co.za", "https://thandi-guest-helper.netlify.app"];
+const allowedOrigins = [...new Set([...(Deno.env.get("CHAT_ALLOWED_ORIGINS") || "").split(",").map((s) => s.trim()).filter(Boolean), ...OFFICIAL_ORIGINS])];
 function corsHeaders(origin: string) {
   return {
     "Access-Control-Allow-Origin": origin,
